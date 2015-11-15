@@ -1,0 +1,413 @@
+#! /bin/bash
+ROOT=`cd $(dirname $0); pwd`
+CONFDIR=$ROOT/config
+RUN_LOG_DIR=$ROOT/log
+GAME_LOG_DIR=/data/logs/cat
+GAME_CONFIG_DIR=$CONFDIR
+INTERACTIVE=false
+ERLANG_NODE=cat@localhost
+
+# 定义erlang vm选项
+ERL=erl
+POLL=true
+ASYNC=8
+SMP=true
+ERL_PROCESSES=500000
+CONNECT_ALL=true
+DATETIME=`date "+%Y%m%d_%H%M%S"`
+export ERL_CRASH_DUMP=$ROOT/erl_crash_$DATETIME.dump
+export ERL_MAX_PORTS=102400
+export ERL_MAX_ETS_TABLES=10000
+export HOME=$ROOT
+
+# 其它变量
+COOKIE="node-cookie"
+TRACE_PORT=4711
+
+# 运行的程序及控制文件
+APP_MOD=game
+APP_CTL=game_ctl
+ERROR_LOG=$RUN_LOG_DIR/error_${DATETIME}.log
+SASL_LOG=$RUN_LOG_DIR/sasl_${DATETIME}.log
+
+# define additional environment variables
+EBINS="$ROOT/ebin $ROOT/ebin/game $ROOT/ebin/data $ROOT/ebin/base"
+#echo "ebins is " $EBINS
+
+# makesure the logs dir exists
+if [ ! -d $RUN_LOG_DIR ]; then
+    mkdir -p $RUN_LOG_DIR || echo "make $RUN_LOG_DIR error!"; exit 1
+fi
+
+STATUS_SUCCESS=0    # 成功
+STATUS_ERROR=1      # 错误
+STATUS_NORUN=2       # 未运行
+STATUS_BADRPC=3     # rpc调用错误
+STATUS_USAGE=4      # 用法错误
+STATUS_STARTING=5   # 正在启动
+STATUS_RUNNING=6    # 正在运行中
+STATUS_STOPING=7    # 正在停止
+
+# 重新加载的系统数据
+RELOAD_TYPE=code
+
+# 获取game.conf中某个配置
+game_conf_value() {
+    KEY=$1
+    if [ -n "$KEY" ]; then
+        echo `cat $CONFDIR/game.conf | grep "${KEY}" | tail -n 1 | sed -e "s/\s*{${KEY},\s*\(.*\)}.*/\1/"`
+    fi
+}
+
+# 打印错误
+error() {
+    echo -e "[1;41m[错误][0m $@"
+    exit 1
+}
+
+# 打印警告
+warn() {
+    echo -e "[1;43m[警告][0m $@"
+}
+
+# 打印信息
+echo2() {
+    echo -e "[1;42m[操作][0m $@"
+}
+
+# 获取内网ip
+getip() {
+    echo `LANG=en_US; ifconfig | grep 'inet addr:' | grep -v '127.0.0.1' | grep '192.*' | cut -d: -f 2 | awk '{print $1}'`
+}
+
+# 使用说明
+usage ()
+{
+    echo ""
+    echo "用法:"
+    echo "$0 动作 [选项]"
+    echo "动作:"
+    echo "  live        交互方式启动"
+    echo "  start       后台方式启动(同步方式)"
+    echo "  async_start 后台方式启动(异步方式)"
+    echo "  status      获取后台运行状态"
+    echo "  attach      通过Erlang shell连接后台运行节点"
+    echo "  stop        停止节点(异步方式)"
+    echo "  sync_stop   停止节点(同步方式)"
+    echo "  restart     重启节点"
+    echo "  reload      重新加载数据或代码"
+    echo "  trace       启动trace cient"
+    echo ""
+    echo "选项:"
+    echo "  -h, --help              显示本信息"
+    echo "  -s, --smp=true          是否使用smp(true|false,默认为true)"
+    echo "  -n, --node=Nodename     节点名称:$ERLANG_NODE(default)"
+    echo "  -c, --cookie=Cookie     节点cookie(默认\"\")"
+    echo "  -r, --reload=Type       指明要reload的系统数据:code,config"
+    echo "  -i, --interactive       执行操作时给与交互确认"
+    echo "  -p = TracePort          设置trace端口"
+    echo ""
+}
+
+# 修改ulimit
+change_ulimit() {
+    if ! ulimit -HSn 102400 2> /dev/null ; then
+        error "请确保具有root权限"
+    fi
+}
+
+# 提示确认信息
+show_verify() {
+    if [ "$INTERACTIVE" = "true" ]; then
+        echo -n "请确认要执行$1操作? yes/no: "
+        read option
+        case $option in
+            "yes");;
+            *)exit 1;;
+        esac
+    fi
+}
+
+# 查询运行中节点的信息
+rpc() 
+{
+    RPC_NODE=${NAME}_ctl@$HOST
+    $ERL \
+      $NAME_FLAG ${RPC_NODE} \
+      -noinput \
+      -pa $EBINS \
+      -setcookie ${COOKIE} \
+      -s ${APP_CTL} -extra $ERLANG_NODE $@
+}
+
+# 打印rpc返回信息
+print_rpc_return ()
+{
+    case $1 in
+    $STATUS_SUCCESS) 
+        echo ""
+        ;;
+    $STATUS_ERROR) 
+        error "操作发生错误"
+        ;;
+    $STATUS_NORUN) 
+        warn "未运行"
+        ;;
+    $STATUS_BADRPC) 
+        error "rpc调用错误"
+        ;;
+    $STATUS_USAGE) 
+        error "用法错误"
+        ;;
+    $STATUS_STARTING) 
+        error "正在启动"
+        ;;
+    $STATUS_RUNNING) 
+        error "正在运行"
+        ;;
+    $STATUS_STOPING) 
+        error "正在停止"
+        ;;
+    *)
+        error "未知返回值:$1"
+    esac
+}
+
+# 判断节点是否运行
+is_started () 
+{
+    if [ "$APP_MOD" = "game" ]; then
+        rpc status
+    else
+        rpc status $APP_MOD
+    fi
+    result=$?
+    if [  "$result" = "$STATUS_SUCCESS" ]; then
+        return 0
+    fi
+    return $STATUS_NORUN
+}
+
+# 判断节点是否crash
+is_crashed() 
+{
+    if [ -f ${ERL_CRASH_DUMP} ]; then
+        return 0
+    fi
+    return 1
+}
+
+# start interactive server
+live ()
+{
+    change_ulimit
+    $ERL \
+      $NAME_FLAG $ERLANG_NODE \
+      -pa $EBINS \
+      -setcookie ${COOKIE} \
+      -s ${APP_MOD} start \
+      $ERLANG_OPTS -extra $ARGS "$@"
+}
+
+# 启动server
+start ()
+{
+    ASYNC=$1
+    change_ulimit
+    if is_started; then
+        warn "节点$ERLANG_NODE已经启动"
+        exit 0
+    fi
+
+    $ERL \
+      $NAME_FLAG $ERLANG_NODE \
+      -noinput -detached \
+      -pa $EBINS \
+      -setcookie ${COOKIE} \
+      -kernel error_logger \{file,\"$ERROR_LOG\"\} \
+      -sasl sasl_error_logger \{file,\"$SASL_LOG\"\} \
+      -s ${APP_MOD} start\
+      $ERLANG_OPTS -extra $ARGS "$@"
+    if [ "$ASYNC" != "true" ]; then
+        RETRY=0
+        while [ $RETRY -lt 30 ];do
+            if [ $? -ne 0 ]; then
+                error "启动失败:$?"
+            else
+                if is_started; then
+                    break
+                fi
+                if is_crashed; then
+                    error "启动失败:发生crash"
+                else
+                    let RETRY++
+                    sleep 1
+                fi
+                if [ $RETRY -ge 30 ]; then
+                    warn "!!!服务器$APP_NAME启动失败,请手动检查!!!"
+                    exit 1
+                fi
+            fi
+        done
+        echo2 "启动成功!"
+    else
+        echo2 "正在启动..."
+    fi
+}
+
+# 获取状态
+status ()
+{
+    if is_started; then
+        echo2 "运行中"
+    else
+        RET=$?
+        print_rpc_return $RET
+        exit $RET
+    fi  
+}
+
+# 连接到后台节点
+attach ()
+{
+    if ! is_started; then
+        error "未启动"
+    fi
+    ATTACH_NODE=${NAME}debug@$HOST
+    # 如果节点存在先kill
+    PID_EXIST=`ps x | grep ${ATTACH_NODE} | grep -v 'grep' | awk '{print $1}'`
+    if [ -n "$PID_EXIST" ]; then
+        if !(kill -9 $PID_EXIST); then
+            error "kill已有的attach节点${ATTACH_NODE}出错"
+        fi
+    fi
+    $ERL $NAME_FLAG ${ATTACH_NODE} \
+      -setcookie ${COOKIE} \
+      -remsh $ERLANG_NODE \
+      $ERLANG_OPTS $ARGS "$@"
+}
+
+# 启动一个trace client
+trace ()
+{
+    if ! is_started; then
+        error "未启动"
+    fi
+    TRACE_NODE=${NAME}_trace@$HOST
+    # 如果节点存在先kill
+    PID_EXIST=`ps x | grep ${TRACE_NODE} | grep -v 'grep' | awk '{print $1}'`
+    if [ -n "$PID_EXIST" ]; then
+        if !(kill -9 $PID_EXIST); then
+            error "kill已有的trace节点${TRACE_NODE}出错"
+        fi
+    fi
+    $ERL $NAME_FLAG ${TRACE_NODE} \
+      -setcookie ${COOKIE} \
+      $ERLANG_OPTS \
+      -pa $EBINS \
+      -s ${APP_CTL} start_trace -extra $ERLANG_NODE $TRACE_PORT "$@"
+}
+
+
+# 停止节点
+stop_server ()
+{
+    show_verify;
+    if rpc stop $@; then
+        echo2 "停止成功"
+    else
+        print_rpc_return $?
+    fi  
+}
+
+# 重启节点
+restart ()
+{
+    show_verify;
+    if rpc restart; then
+        echo2 "重启成功"
+    else
+        print_rpc_return $?
+    fi  
+}
+
+# 重新加载
+reload ()
+{
+    show_verify;
+    if rpc reload ${RELOAD_TYPE} $@ 2> /dev/null; then
+        echo2 "重新加载${RELOAD_TYPE}成功"
+    else
+        error "重新加载${RELOAD_TYPE}失败"
+    fi  
+}
+
+# 获取配置中的值
+# GAME_PLATFORM=$(game_conf_value platform)
+# GAME_PLATFORM=${GAME_PLATFORM#\"}
+# GAME_PLATFORM=${GAME_PLATFORM%\"}
+# SERVER_ID=$(game_conf_value server_id)
+# ERLANG_NODE=game_${GAME_PLATFORM}_${SERVER_ID}@localhost
+# if [ -z "$GAME_PLATFORM" -o -z "$SERVER_ID" ]; then
+#     echo "请检查$CONFDIR/game.conf 文件中平台相关配置"
+#     exit 1
+# fi
+# GAME_LOG_DIR=${GAME_LOG_DIR}/${GAME_PLATFORM}s${SERVER_ID}/wait
+mkdir -p ${GAME_LOG_DIR}
+#echo "平台${GAME_PLATFORM}第${SERVER_ID}服节点${ERLANG_NODE}"
+
+# parse command line parameters
+while [ $# -ne 0 ] ; do
+    PARAM=$1
+    shift
+    case $PARAM in
+        --) break ;;
+        --node|-n) ERLANG_NODE=$1; shift ;;
+        --cookie|-c) COOKIE=$1 ; shift ;;
+        --help|-h) usage; exit 0;;
+        --smp|-s) SMP=$1; shift;;
+        --reload|-r) RELOAD_TYPE=$1; shift;;
+        --interactive|-i) INTERACTIVE=true; shift;;
+        -p) TRACE_PORT=$1; shift;;
+        *) ARGS="$ARGS $PARAM" ;;
+    esac
+done
+
+NAME=${ERLANG_NODE%%@*}
+HOST=${ERLANG_NODE##*@}
+NAME_FLAG=-name
+[ "$ERLANG_NODE" = "${ERLANG_NODE%.*}" ] && NAME_FLAG=-sname
+LOCAL_IP=$(getip)
+if [ "$NAME_FLAG" = "-name" -a "$HOST" !=  "$LOCAL_IP" ]; then 
+    error "与本机ip:$LOCAL_IP不相符"
+fi
+
+if [ "$SMP" = "false" ]; then
+    SMP=disable
+else
+    SMP=enable
+fi
+ERLANG_OPTS="-connect_all $CONNECT_ALL +K $POLL -smp $SMP +P $ERL_PROCESSES \
+    +t 10485760 +fnu +hms 8192 +hmbs 8192 +zdbbl 81920 \
+    -env ROOT_DIR ${ROOT} \
+    -env GAME_CONFIG_DIR ${GAME_CONFIG_DIR} \
+    -env GAME_LOG_DIR ${GAME_LOG_DIR} \
+    -env RUN_LOG_DIR ${RUN_LOG_DIR}"
+
+set -- $ARGS
+ACTION=$1
+shift
+case ${ACTION} in
+    '') usage;;
+    'live') live;;
+    'start') start false;;
+    'async_start') start true;;
+    'status') status;;
+    'attach') attach;;
+    'trace') trace;;
+    'stop') stop_server false;;
+    'sync_stop') stop_server true;;
+    'restart') restart true;;
+    'reload') reload $@;;
+    *) usage; exit 1;;
+esac

@@ -1,0 +1,115 @@
+
+=PROGRESS REPORT==== 15-Nov-2015::14:26:43 ===
+          supervisor: {local,sasl_safe_sup}
+             started: [{pid,<0.40.0>},
+                       {id,alarm_handler},
+                       {mfargs,{alarm_handler,start_link,[]}},
+                       {restart_type,permanent},
+                       {shutdown,2000},
+                       {child_type,worker}]
+
+=PROGRESS REPORT==== 15-Nov-2015::14:26:43 ===
+          supervisor: {local,sasl_safe_sup}
+             started: [{pid,<0.41.0>},
+                       {id,overload},
+                       {mfargs,{overload,start_link,[]}},
+                       {restart_type,permanent},
+                       {shutdown,2000},
+                       {child_type,worker}]
+
+=PROGRESS REPORT==== 15-Nov-2015::14:26:43 ===
+          supervisor: {local,sasl_sup}
+             started: [{pid,<0.39.0>},
+                       {id,sasl_safe_sup},
+                       {mfargs,
+                           {supervisor,start_link,
+                               [{local,sasl_safe_sup},sasl,safe]}},
+                       {restart_type,permanent},
+                       {shutdown,infinity},
+                       {child_type,supervisor}]
+
+=PROGRESS REPORT==== 15-Nov-2015::14:26:43 ===
+          supervisor: {local,sasl_sup}
+             started: [{pid,<0.42.0>},
+                       {id,release_handler},
+                       {mfargs,{release_handler,start_link,[]}},
+                       {restart_type,permanent},
+                       {shutdown,2000},
+                       {child_type,worker}]
+
+=PROGRESS REPORT==== 15-Nov-2015::14:26:43 ===
+         application: sasl
+          started_at: nonode@nohost
+
+=PROGRESS REPORT==== 15-Nov-2015::14:26:43 ===
+          supervisor: {local,inets_sup}
+             started: [{pid,<0.48.0>},
+                       {id,ftp_sup},
+                       {mfargs,{ftp_sup,start_link,[]}},
+                       {restart_type,permanent},
+                       {shutdown,infinity},
+                       {child_type,supervisor}]
+
+=PROGRESS REPORT==== 15-Nov-2015::14:26:43 ===
+          supervisor: {local,httpc_profile_sup}
+             started: [{pid,<0.51.0>},
+                       {id,httpc_manager},
+                       {mfargs,
+                           {httpc_manager,start_link,
+                               [default,only_session_cookies,inets]}},
+                       {restart_type,permanent},
+                       {shutdown,4000},
+                       {child_type,worker}]
+
+=PROGRESS REPORT==== 15-Nov-2015::14:26:43 ===
+          supervisor: {local,httpc_sup}
+             started: [{pid,<0.50.0>},
+                       {id,httpc_profile_sup},
+                       {mfargs,
+                           {httpc_profile_sup,start_link,
+                               [[{httpc,{default,only_session_cookies}}]]}},
+                       {restart_type,permanent},
+                       {shutdown,infinity},
+                       {child_type,supervisor}]
+
+=PROGRESS REPORT==== 15-Nov-2015::14:26:43 ===
+          supervisor: {local,httpc_sup}
+             started: [{pid,<0.52.0>},
+                       {id,httpc_handler_sup},
+                       {mfargs,{httpc_handler_sup,start_link,[]}},
+                       {restart_type,permanent},
+                       {shutdown,infinity},
+                       {child_type,supervisor}]
+
+=PROGRESS REPORT==== 15-Nov-2015::14:26:43 ===
+          supervisor: {local,inets_sup}
+             started: [{pid,<0.49.0>},
+                       {id,httpc_sup},
+                       {mfargs,
+                           {httpc_sup,start_link,
+                               [[{httpc,{default,only_session_cookies}}]]}},
+                       {restart_type,permanent},
+                       {shutdown,infinity},
+                       {child_type,supervisor}]
+
+=PROGRESS REPORT==== 15-Nov-2015::14:26:43 ===
+          supervisor: {local,inets_sup}
+             started: [{pid,<0.53.0>},
+                       {id,httpd_sup},
+                       {mfargs,{httpd_sup,start_link,[[]]}},
+                       {restart_type,permanent},
+                       {shutdown,infinity},
+                       {child_type,supervisor}]
+
+=PROGRESS REPORT==== 15-Nov-2015::14:26:43 ===
+          supervisor: {local,inets_sup}
+             started: [{pid,<0.54.0>},
+                       {id,tftp_sup},
+                       {mfargs,{tftp_sup,start_link,[[]]}},
+                       {restart_type,permanent},
+                       {shutdown,infinity},
+                       {child_type,supervisor}]
+
+=PROGRESS REPORT==== 15-Nov-2015::14:26:43 ===
+         application: inets
+          started_at: nonode@nohost

@@ -1,0 +1,7 @@
+数据生成方式
+通过AIR编辑器生成:
+export_skill_conf
+export_buff_conf
+
+通过Erlang脚本生成：
+其它所有

@@ -1,0 +1,106 @@
+SHELL := /bin/bash
+.PHONY: all apps data copy_data unit_test dialyzer clean robot
+ERL := erl
+EBIN_DIRS := ebin ebin/game ebin/data ebin/base 
+EBIN_DIRS_INTER := $(addprefix ../../, $(EBIN_DIRS))
+EBIN_OUTDIR := ebin/game
+MAKE_OPTS := {d, 'dummmmmy'}
+DIALYZER_TOOL := dialyzer
+DIALYZER_FILE := ./.dialyzer_plt
+EDOC_OPTS=[{todo,true},{packages,false}]
+EDOC_META=<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />
+COMPILE_LANG="zh"
+
+PROJECT = cat
+include erlang.mk
+
+DEPS = cowboy ranch mysql-otp poolboy lager
+LOCAL_DEPS= crypto
+ERLC_OPTS = -Werror +debug_info +warn_export_vars +warn_show_vars +warn_obsolete_guard
+
+ifdef INLINE
+	MAKE_OPTS+=,inline
+endif
+
+
+ifdef HIPE
+	MAKE_OPTS+=,native,{hipe,o3}
+endif
+
+ifdef TEST
+    MAKE_OPTS+=,{d, 'TEST'}, debug_info
+endif
+
+ifdef DIALYZER
+    MAKE_OPTS+=,{d, 'DIALYZER'}, debug_info
+endif
+
+# live方式，正确输出log到STDOUT
+ifdef LIVE
+    MAKE_OPTS+=,{d, 'LIVE'}
+endif
+
+# 线上环境
+ifdef PRODUCT
+	MAKE_OPTS+=,{d, 'PRODUCT'}
+endif
+
+# 版本信息
+ifdef VERSION
+	MAKE_OPTS+=,{d, 'VERSION', $(VERSION)}
+endif
+
+# all: apps user_default data
+	# @$(ERL) -pa $(EBIN_DIRS) -noinput \
+	  # -eval "case mmake:all(8,[$(MAKE_OPTS)]) of up_to_date -> halt(0); error -> halt(1) end."
+
+apps:
+	(mkdir -p $(EBIN_OUTDIR))
+	(cp -rf src/*.app src/db/*.app $(EBIN_OUTDIR))
+
+# 生成user_default.beam
+user_default:
+	@$(ERL) -pa $(EBIN_DIRS) -noinput \
+    	-eval "case make:files([\"src/util/user_default.erl\"]) of error -> halt(1); _ -> halt(0) end"
+# 数据
+data:
+	(rm -rf data && cp -rf data_$(COMPILE_LANG) data)
+
+copy_data:
+	(./script/dev/copy_data.sh $(COMPILE_LANG))
+
+unit_test: _unit_compile
+	@$(ERL) -pa $(EBIN_DIRS) -noshell \
+	-env GAME_CONF_DIR `pwd`/etc -env GAME_DATA_DIR `pwd`/data \
+	-eval "eunit:test(\"./ebin/game\", []), init:stop()"
+
+_unit_compile: 
+	@$(ERL) -pa $(EBIN_DIRS) -noinput +B \
+		  -eval "case make:all([{d, 'EUNIT'}, {d, 'LANG_ZH'}, {d, 'TEST'}, debug_info]) of up_to_date -> halt(0); error -> halt(1) end."
+
+
+tags :
+	(ctags -R .)
+
+# dialyzer分析
+dialyzer: $(DIALYZER_FILE)
+	($(MAKE) all DIALYZER=true)
+	($(DIALYZER_TOOL) --plt $(DIALYZER_FILE) --verbose -r ./ebin/game/)
+
+$(DIALYZER_FILE):
+	./script/gen_plt.sh -a odbc -a mnesia -a compiler -a eunit -a inets -a xmerl -a crypto
+
+clean:
+	@echo "清理 ..."
+	(rm -rf ebin/*.beam; rm -rf *.dump;)
+	(rm -rf ebin/game/*.beam; rm -rf ebin/data/*.beam)
+
+robot: mmake
+	@echo "编译机器人代码 ..."
+	(mkdir -p ebin/robot)
+	(cd src/robot && cp robot.app ../../ebin/robot && @$(ERL) -pa $(EBIN_DIRS) -noshell +B \
+		  -eval "case mmake:all(3, [{outdir, \"./ebin/robot\"}, {d, 'LIVE'}]) of up_to_date -> halt(0); error -> halt(1) end.")
+
+robot_clean:
+	@echo "清理机器人代码 ..."
+	rm -rf ebin/robot/*

@@ -1,0 +1,58 @@
+#! /bin/bash
+# 启动机器人
+ROOT=`cd $(dirname $0); pwd`
+# 服务器ip
+SERVER_IP=
+SERVER_PORT=5426
+ROBOT_NUM=1
+LOGLEVEL=3
+
+# 用法
+usage () {
+    echo "启动机器人"
+    echo "用法:"
+    echo "$0 服务器 [选项]"
+    echo "服务器        - 服务器ip或域名"
+    echo "选项"
+    echo " -p Port      - 服务器端口(默认5426)"
+    echo " -n Num       - 启动机器人数目(默认为1)"
+    echo ""
+}
+
+if [ "$#" -eq 0 ]; then
+    usage
+    exit 1
+fi
+SERVER_IP=$1
+
+ARGS=""
+while [ $# -ne 0 ] ; do
+    PARAM=$1
+    shift
+    case $PARAM in
+        --)
+            break ;;
+        -p) 
+            SERVER_PORT=$1
+            shift;;
+        -n)
+            ROBOT_NUM=$1
+            shift;;
+        *) 
+            ARGS="$ARGS $PARAM" 
+            ;;
+    esac
+done
+set -- $ARGS
+
+ERLANG_OPTS="+K true -smp enable +P 100000 \
+    +t 10485760 +fnu +hms 8192 +hmbs 8192 +zdbbl 81920"
+
+# 启动
+erl ${ERLANG_OPTS} -sname robot@localhost -pa ebin/ ebin/game ebin/base/ \
+    -s robot_app start \
+    -robot_app server_ip \"${SERVER_IP}\" \
+    -robot_app server_port ${SERVER_PORT} \
+    -robot_app robot_num ${ROBOT_NUM} \
+    -loglevel ${LOGLEVEL} \
+    -extra $@

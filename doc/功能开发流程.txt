@@ -1,0 +1,11 @@
+介绍
+每个功能大致包含handle, mod, data, db几个模块。handle主要处理协议，mod主要处理逻辑，data处理数据，db负责数据存储。
+
+开发流程
+1，在protocol.hrl中定义协议
+2，判断是否需要创建新的数据库，如果需要设计数据表，并实现db_xxx模块
+3，书写对应的handle模块handle_xxx
+4，书写对应的mod模块mod_xxx
+5，书写对应的data模块data_xxx(如果数据较少，可以合并到mod模块中)
+6，编译通过，联调，功能完成
+

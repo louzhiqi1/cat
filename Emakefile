@@ -15,9 +15,7 @@
  ]
 }.
 {[	
-	"src/mod/gen_mod.erl",
-	"src/map/gen_map_ai.erl",
-	"src/map/gen_mon_ai.erl"
+	"src/mod/gen_mod.erl"
  ], 
  [	
 	{i, "."},

@@ -19,7 +19,8 @@
 	{modules, []},
 	{applications, [
 		kernel,
-		stdlib
+		stdlib,
+		cowboy
 	]},
 	{mod, {cat_app, []}},
 	{env, []}

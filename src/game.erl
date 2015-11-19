@@ -64,7 +64,21 @@ stop(_State) ->
 %% 确保app已启动
 ensure_apps() ->
     ok = application:start(sasl),
-    ok = inets:start().
+    ok = application:start(ranch),
+    ok = application:start(crypto),
+    ok = application:start(cowlib),
+    ok = application:start(cowboy),
+
+    ok = inets:start(),
+    Dispatch = cowboy_router:compile([
+        {'_', [{"/", web_handler, []}]}
+    ]),
+
+    {ok, _} = cowboy:start_http(web_server, 10, [{port, 8080}],
+        [{env, [{dispatch, Dispatch}]}]
+        ),
+
+    web_server_sup:start_link().
 
 %% 设置日志等级
 set_loglevel() ->

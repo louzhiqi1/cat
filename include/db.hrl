@@ -17,7 +17,8 @@
 %% included on the next calls to parse/2.
 -record(pstate, {
           state = undefined :: parser_state() | undefined,
-          continuation_data :: continuation_data() | undefined
+          continuation_data :: continuation_data() | undefined,
+          parsed_values = []
 }).
 
 

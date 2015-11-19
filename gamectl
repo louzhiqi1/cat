@@ -31,7 +31,8 @@ ERROR_LOG=$RUN_LOG_DIR/error_${DATETIME}.log
 SASL_LOG=$RUN_LOG_DIR/sasl_${DATETIME}.log
 
 # define additional environment variables
-EBINS="$ROOT/ebin $ROOT/ebin/game $ROOT/ebin/data $ROOT/ebin/base"
+EBINS="$ROOT/ebin $ROOT/ebin/game $ROOT/ebin/data $ROOT/ebin/base $ROOT/deps/cowboy/ebin/ \
+        $ROOT/deps/ranch/ebin/ $ROOT/deps/cowboy/deps/cowlib/ebin/"
 #echo "ebins is " $EBINS
 
 # makesure the logs dir exists

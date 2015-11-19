@@ -48,7 +48,7 @@ do_load_game_conf() ->
     LogDir = os:getenv("GAME_LOG_DIR"),
     RunLogDir = os:getenv("RUN_LOG_DIR"),
     ConfigDir = os:getenv("GAME_CONFIG_DIR"),
-    EbinDir = filename:join([RootDir, "ebin", "game"]),
+    EbinDir = filename:join([RootDir, "ebin"]),
     DataDir = filename:join([RootDir, "data"]),
 
     GameConf = filename:join([ConfigDir, "game.conf"]),

@@ -45,7 +45,6 @@ start_link( _Args ) ->
                                 permanent, brutal_kill, supervisor, [essdb_sup]}),
 
     
-    
     {ok, Sup}.
 
 stop() ->

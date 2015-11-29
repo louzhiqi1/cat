@@ -6,7 +6,11 @@
 %%%
 %%%----------------------------------------------------------------------
 -module(role_server).
+-behaviour(ranch_protocol).
 -behaviour(gen_server).
+
+%% API.
+-export([start_link/4]).
 
 -include("common.hrl").
 -include("role.hrl").
@@ -14,26 +18,22 @@
 -include("counter.hrl").
 -include("log.hrl").
 
--export([start_link/0, active/2, stop/1, 
-        async_stop/1, async_stop/2, async_stop/3,
+-export([active/2, stop/1, 
+        async_stop/1, async_stop/2,
         kickout/1, login/1, get_state/1]).
--export([i/1, i/2, p/1, pid/1, get_pos/1, get_lvl/1, is_online/1,
-         pk_mode/1, get/1, get_not_dead/1, get_basic_info/1,
-         get_name/1, get_by_name/1, get_id_by_name/1,
-         get_charm/1]).
+-export([i/1, i/2, p/1, pid/1, is_online/1,
+         get/1, get_name/1, get_by_name/1, get_id_by_name/1]).
 -export([send_push/2, send_merge/2, socket/1, peer/1]).
 
 %% 调试使用
--export([start_role/1, apply/2]).
+-export([apply/2]).
 
-%% 获取视野或地图内玩家
--export([sight/3, sight_exclude/4, all_exclude/2]).
 
 -export([s2s_call/3, s2s_call/4, s2s_call_all/2, s2s_cast/3, s2s_cast_all/2,
          notify_timeout_event/1
         ]).
 -export([set_track/2, clear_counter/1]).
--export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
+-export([init/1, init/4, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
 
 %% 内部使用
 -export([do_send_data/2, do_send_msg_merge/3, notify_self_tcp_error/2]).
@@ -47,8 +47,32 @@
 %% 数据包头长度
 -define(HEADER_LENGTH, 2).               
 
-start_link() ->
-    gen_server:start_link(?MODULE, [], [] ) .
+-type opts() :: []. 
+-export_type([opts/0]).
+ 
+-record(state, {
+    socket :: inet:socket(),
+    transport :: module()
+}).
+ 
+start_link(Ref, Socket, Transport, Opts) ->
+      proc_lib:start_link(?MODULE, init, [Ref, Socket, Transport, Opts]).
+
+init(_) ->
+    {ok, undefined}.
+ 
+init(Ref, Socket, Transport, _Opts = []) ->
+    ok = proc_lib:init_ack({ok, self()}),
+    ok = ranch:accept_ack(Ref),
+    ok = Transport:setopts(Socket, [{active, once}]),
+
+    process_flag(trap_exit , true),
+    random:seed(erlang:timestamp()),
+    util:set_pid_type(?PID_TYPE_ROLE),
+    % 开始启动超时检测
+    mod_heart:start_heart_check_timer(),
+
+    gen_server:enter_loop(?MODULE, [], ?ROLE_LOGIN_POLICY).
 
 %% @doc 激活socket
 active(Pid, Sock) ->
@@ -62,9 +86,7 @@ stop(Id) ->
 async_stop(Id) ->
     async_stop(Id, normal).
 async_stop(Id, Reason) ->
-    async_stop(Id, Reason, 0).
-async_stop(Id, Reason, LockTime) ->
-    cast(Id, {async_stop, Reason, LockTime}).
+    async_stop(Id, Reason).
 
 %% @doc 踢玩家下线(同步)
 kickout(Id) when is_integer(Id) ->
@@ -86,100 +108,29 @@ pid(Rid) when is_integer(Rid) ->
     Pid = erlang:whereis(util:role_name(Rid)),
     ?IF(Pid =:= undefined, ?NONE, Pid).
 
-%% @doc 获取玩家位置
-get_pos(#role{mapkey = MapKey, x = X, y = Y}) ->
-    {MapKey, X, Y};
-get_pos(RoleId) when is_integer(RoleId) ->
-    case role_server:get(RoleId) of
-        ?NONE ->
-            ?NONE;
-        Role ->
-            get_pos(Role)
-    end.
-
-%% @doc 获取玩家等级
-get_lvl(#role{lvl = Lvl}) ->
-    Lvl;
-get_lvl(RoleId) when is_integer(RoleId) ->
-    case role_server:get(RoleId) of
-        ?NONE ->
-            ?C2SERR(?E_ROLE_NEXIST);
-        Role ->
-            get_lvl(Role)
-    end.
-
-%% @doc获取玩家魅力值
-get_charm(#role{} = Role) ->
-    role_internal:get_charm(Role);
-get_charm(RId) ->
-    case role_server:get(RId) of
-        ?NONE ->
-            ?C2SERR(?E_ROLE_NEXIST);
-        Role ->
-            get_charm(Role)
-    end.
-
 %% @doc 判断玩家是否在线
 is_online(Id) ->
     pid(Id) =/= ?NONE.
 
-%% @doc 获取玩家pk模式
-pk_mode(#role{pk_mode = PkMode}) ->
-    PkMode;
-pk_mode(Id) when is_integer(Id) ->
-    Role = role_server:get(Id),
-    pk_mode(Role).
-
 %% @doc 获取某个玩家数据
-get(Id) ->
-    do_get(Id, true).
-
-%% @doc 获取某个玩家数据(非死亡状态)
-get_not_dead(Id) ->
-    do_get(Id, false).
-
-%% @doc 获取某个玩家的基本信息(在线离线均可)
-get_basic_info(Id) ->
-    case ?MODULE:get(Id) of
-        ?NONE ->
-            db_role:get_basic_info_by_id(Id);
-        #role{} = R ->
-            #role_basic_info{
-                id = R#role.id,
-                name = R#role.name,
-                lvl = R#role.lvl,
-                sex = R#role.sex,
-                job = R#role.job,
-                vip = R#role.vip,
-                repu = R#role.repu,
-                flower = R#role.flower,
-                title = R#role.title,
-                last_login_time = R#role.last_login_time,
-                last_logout_time = R#role.last_logout_time
-            }
-    end.
-
-do_get(Id, IncludeDead) when is_integer(Id) ->
+get(Id) when is_integer(Id) ->
     case serv_role_mgr:get(Id) of
         ?NONE ->
             ?NONE;
-        R when IncludeDead ->
-            R;
-        R when IncludeDead =:= false ->
-            ?IF(role_status:in_dead(R), ?NONE, R)
+        R ->
+            R
     end;
+
 %% 获取多个玩家,如果玩家不存在则跳过!
 %%  获取的顺序为反序
-do_get(Ids, IncludeDead) when is_list(Ids) ->
+get(Ids) when is_list(Ids) ->
     lists:foldl(
     fun(Id, Acc) ->
         case catch ?MODULE:get(Id) of
             ?NONE ->
                 Acc;
-            P when IncludeDead ->
-                [P | Acc];
-            P when IncludeDead =:= false ->
-                ?IF(role_status:in_dead(P), Acc, [P | Acc])
+            R ->
+                [R | Acc]
         end
     end, [], Ids).
 
@@ -226,32 +177,9 @@ login(Role) ->
 get_state( Rid ) ->
     call(Rid , get_state) .
 
-%% @doc 启动role(调试使用)
-start_role(Id) ->
-    gen_server:start(?MODULE, {start_for_debug, Id}, []).
-
 %% @doc 在role中执行一个函数
 apply(Id, Fun) when is_function(Fun) ->
     call(Id, {apply, Fun}).
-
-%% 获取视野内玩家 #role
-sight(MapKey, X, Y) ->
-    Ids = map_server:sight_role(MapKey, X, Y),
-    ?MODULE:get(Ids).
-
-%% 获取视野内除却Exclude的玩家 #role
-sight_exclude(MapKey, X, Y, Exclude) ->
-    Ids = map_server:sight_role(MapKey, X, Y),
-    ?MODULE:get(Ids -- [Exclude]).
-
-%% 获取地图内除却Exclude的玩家 #role
-all_exclude(MapKey, Exclude) ->
-    case catch map_server:all_role(MapKey) of
-        {'EXIT', _} ->
-            [];
-        Ids ->
-            ?MODULE:get(Ids -- [Exclude])
-    end.
 
 
 %% @doc 服务器内部call给某个玩家
@@ -288,20 +216,6 @@ set_track(Id, Track) ->
 %% @doc 清理计数器
 clear_counter(Id) ->
     cast(Id, clear_counter).
-    
-init({start_for_debug, Id}) ->
-    process_flag(trap_exit , true),
-    random:seed(erlang:timestamp()),
-    Role2 = login(#role{id = Id}),
-    set_start_for_debug(),
-    {ok, Role2};
-init(_Args) ->
-    process_flag(trap_exit , true),
-    random:seed(erlang:timestamp()),
-    util:set_pid_type(?PID_TYPE_ROLE),
-    % 开始启动超时检测
-    mod_heart:start_heart_check_timer(),
-    {ok, ?ROLE_LOGIN_POLICY}.
 
 handle_call(Req, From, State) ->
     ?HANDLE_CALL_WRAP(Req, State).
@@ -454,13 +368,6 @@ do_call( _Request, _From, State ) ->
 
 do_cast({active, Sock}, ?ROLE_LOGIN_POLICY) ->
     case gen_tcp:recv(Sock, 5, 30000) of
-        %% 安全沙箱请求
-        { ok , <<"<poli">> } ->
-            gen_tcp:recv(Sock , 0 , 5000 ) ,
-            %?WARN( "serv listen policy file ~p~n" , [ inet:peername( Sock ) ] ) ,
-            gen_tcp:send( Sock , <<"<cross-domain-policy><allow-access-from domain='*' to-ports='*' /></cross-domain-policy>\0">> ) ,
-            close_socket(Sock) ,
-            {stop, normal, ?ROLE_LOGIN_POLICY};
         %% 心跳包
         {ok , <<0,3,1,0,201>>} ->
             State = #role{
@@ -525,17 +432,11 @@ do_cast(clear_counter, State) ->
  	gen_mod:clear_daily(State),
     {noreply, State};
 %% 停止进程
-do_cast({async_stop, Reason, LockTime}, State) ->
+do_cast({async_stop, Reason}, State) ->
     %?WARN("*** async stop:~p locktime:~p", [Reason, LockTime]),
     util:set_terminate_reason(Reason),
-    State2 =
-     case LockTime of
-        0 ->
-            State;
-        _ ->
-            State#role{lock_time = util:now_sec() + LockTime}
-    end,
-    {stop, normal, State2};
+
+    {stop, normal, State};
 
 do_cast(Msg, State) ->
     ?ERROR("unkonw messsage : ~p~n" , [ Msg ] ) ,
@@ -776,7 +677,7 @@ do_login(#role{id = Rid, sock = Sock} = Role, N) ->
                     TrackType = serv_gm_ctrl:get_track(Rid),
                     ?IF(TrackType =/= ?ROLE_TRACK_NONE, set_track(TrackType), ok),
                     game_log:login(Role4),
-                    role_map:select_on_login(Role4)
+                    Role4
             end;
         Pid ->
             % b
@@ -978,51 +879,16 @@ do_write_track_log(Rid, Type, Module, Fi, Record) ->
 %%------------------
 %% 玩家数据同步
 %%------------------
-
 %% role同步cd
 -define(ROLE_SYNC_TEMP_CD, '!role_sync_temp_cd').
-%% 旧的紧急同步数据
--define(ROLE_SYNC_URGENT_OLD, '!role_sync_urgent_old').
-
-%% 玩家紧急信息
--record(role_urgent, {
-        mapkey,
-        x,
-        y,
-        status,
-        speed
-    }).
-to_role_urgent(#role{mapkey = SId,
-        x = X, y = Y, status = State}) ->
-    #role_urgent{mapkey = SId,
-        x = X, y = Y, status = State}.
-
-%% 设置旧的紧急信息
-set_role_urgent_old(#role_urgent{} = Val) ->
-    erlang:put(?ROLE_SYNC_URGENT_OLD, Val),
-    ok.
-
-%% 获取旧的紧急信息
-get_role_urgent_old() ->
-    erlang:get(?ROLE_SYNC_URGENT_OLD).
-
-%% 紧急信息是否变化
-is_role_urgent_changed(RoleUrgent) ->
-    get_role_urgent_old() =/= RoleUrgent.
-
-%% 如果mapkey,x,y,state,speed发生了变化,则立刻更新
 %% 否则1秒钟更新一次
 do_update_role(Role) ->
     do_update_role(Role, false).
 do_update_role(#role{login_state = ?ROLE_LOGIN_FINISH} = Role, Must) ->
-    RoleUrgent = to_role_urgent(Role),
     Now = util:now_ms(),    
-    case Must
-        orelse is_role_urgent_changed(RoleUrgent) 
-        orelse temp_cd:valid(?ROLE_SYNC_TEMP_CD, 1000, Now) of
+    case Must orelse temp_cd:valid(?ROLE_SYNC_TEMP_CD, 1000, Now) of
         true ->
             serv_role_mgr:update_role(Role),
-            set_role_urgent_old(RoleUrgent),
             temp_cd:set(?ROLE_SYNC_TEMP_CD, Now);
         false ->
             ok

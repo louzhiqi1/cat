@@ -15,8 +15,6 @@
 
 -export([check_heart_quick/1, check_heart_timeout/1, 
         clear_heart_last_value/0]).
--export([update_pos/2, update_pos/3, clear_pos_prev/0,
-         set_pos_check_stop/1, is_pos_check_stop/1]).
 -export([try_start_timer/1, handle_timeout/2]).
 -export([inc_cheat/1, dec_cheat/1, clear_cheat/0,
          get_cheat/0, get_lock_times/0]).
@@ -106,35 +104,6 @@ check_heart_timeout(#role{sock = Sock, accname = _AccName}) ->
             ok
     end.
 
-%%---------------
-%% 移动检测相关
-%%---------------
-
-%% @doc 更新位置
-update_pos(Role, PPos) ->
-    update_pos(Role, PPos, util:now_ms_no_cache()).
-
-%% 1,玩家等级较低不进行检测
-%% 2,如果关闭了则不检测
-%% 2,是否关闭了位置检测(瞬移，冲锋，加速时会关闭)?
-update_pos(#role{lvl = Lvl}, _PPos, _Now) when Lvl < ?ANTI_CHEAT_ROLE_LVL_MIN ->
-    % 1
-    ok;
-update_pos(Role, PPos, Now) ->
-    % 2
-    case is_check_move() of
-        false ->
-            ok;
-        true ->
-            % 3
-            case is_pos_check_stop(Now) of
-                true ->
-                    clear_pos_prev();
-                false ->
-                    do_update_pos(Role, PPos, Now)
-            end
-    end.
-
 %% @doc 设置是否开启关闭位置检测(T为关闭时间ms)
 %% 设置关闭时间时，确保不会把时间缩短
 -define(POS_CHECK_SWITCH_KEY, anti_cheat_pos_check_switch).
@@ -168,8 +137,6 @@ is_pos_check_stop(Now) ->
     end.
 
 %% @doc 尝试启动检测timer
-try_start_timer(#role{lvl = Lvl}) when Lvl < ?ANTI_CHEAT_ROLE_LVL_MIN ->
-    ok;
 try_start_timer(_Role) ->
     proc_timer:start_timer(?MODULE, 1000, check_anti_cheat, true),
     ok.
@@ -267,63 +234,6 @@ do_calc_heart_quick_score(Diff, QuickCount) ->
             {ok, 0, QuickCount2}
     end.
 
-%%-------------
-%% 移动检测
-%%-------------
-
-%% 更新位置逻辑
-%% x方向251像素/s
-%% y方向1287像素/s
-%% 客户端每400毫秒提交一次状态,走100像素
--define(MOVE_STEP_PX_MAX, 110).     % x方向单步最大距离(100像素)
--define(MOVE_STEP_PY_MAX, 1287).    % y方向单步最大距离
-do_update_pos(Role, {PX, PY}, Now) ->
-    SpeedX = role_internal:speed(Role),
-    do_check_move(?COUNTER_ANTI_CHEAT_XRANGE, 
-        PX, Now, ?MOVE_STEP_PX_MAX, SpeedX),
-    do_check_move(?COUNTER_ANTI_CHEAT_YRANGE, 
-        PY, Now, ?MOVE_STEP_PY_MAX, ?ROLE_PY_SPEED_MAX).
-
-%% 移动检测
-%% 1,如果旧值为空，则更新
-%% 2,如果没有变化则忽略此次更新(跳跃)
-%% 3,进行检测
-%% 4,更新上次记录
-do_check_move(Type, P, Now, RangeMax, SpeedMax) ->
-    case get_pos_prev(Type) of
-        ?NONE ->
-            % 1
-            set_pos_prev(Type, {P, Now});
-        {P, _} ->
-            % 2
-            ok;
-        {PPrev, TimePrev} ->
-            % 3
-            do_check_move_internal(Type, P, Now, PPrev, TimePrev, RangeMax, SpeedMax),
-            set_pos_prev(Type, {P, Now})
-    end.
-
-
-%% 获取先前的位置
--define(MOVE_POS_PREV(Type), {anti_cheat_move_pos_prev, Type}).
-get_pos_prev(Type) ->
-    case erlang:get(?MOVE_POS_PREV(Type)) of
-        undefined ->
-            ?NONE;
-        V ->
-            V
-    end.
-
-%% 设置先前的位置
-set_pos_prev(Type, {_, _} = V) ->
-    erlang:put(?MOVE_POS_PREV(Type), V),
-    ok.
-
-%% @doc 清空先前的位置
-clear_pos_prev() ->
-    erlang:erase(?MOVE_POS_PREV(?COUNTER_ANTI_CHEAT_XRANGE)),
-    erlang:erase(?MOVE_POS_PREV(?COUNTER_ANTI_CHEAT_YRANGE)),
-    ok.
 
 %% 计算锁定时间
 do_calc_lock_time(Times) ->
@@ -365,6 +275,23 @@ set_invalid_cont_times(N) ->
     erlang:put(?MOVE_INVALID_CONT_TIMES, N),
     ok.
 
+%%----------------
+%% 检测逻辑
+%%----------------
+%% 执行检测逻辑
+do_check(#role{id = _Id}) ->
+    Score = get_cheat(),
+    case Score >= ?ANTI_CHEAT_SCORE_MAX of
+        true ->
+            New = ?COUNTER_DB:inc(?COUNTER_ANTI_CHEAT_LOCK_TIMES),
+            LockTime = do_calc_lock_time(New),
+            clear_cheat(),
+            role_server:async_stop(self(), ?LOG_LOGOUT_TYPE_ANTI_CHEAT, LockTime),
+            ok;
+        false ->
+            ok
+    end.
+
 %% 获取移动不合法连续次数
 get_invalid_cont_times() ->
     case erlang:get(?MOVE_INVALID_CONT_TIMES) of
@@ -384,20 +311,3 @@ inc_invalid_cont_times() ->
 clear_invalid_cont_times() ->
     erlang:erase(?MOVE_INVALID_CONT_TIMES),
     ok.
-
-%%----------------
-%% 检测逻辑
-%%----------------
-%% 执行检测逻辑
-do_check(#role{id = _Id}) ->
-    Score = get_cheat(),
-    case Score >= ?ANTI_CHEAT_SCORE_MAX of
-        true ->
-            New = ?COUNTER_DB:inc(?COUNTER_ANTI_CHEAT_LOCK_TIMES),
-            LockTime = do_calc_lock_time(New),
-            clear_cheat(),
-            role_server:async_stop(self(), ?LOG_LOGOUT_TYPE_ANTI_CHEAT, LockTime),
-            ok;
-        false ->
-            ok
-    end.

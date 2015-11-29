@@ -1,18 +1,16 @@
 -module(web_handler).
 
--export([init/3]).
--export([handle/2]).
--export([terminate/3]).
-
--include("wg_log.hrl").
+-export([init/2,
+		 handle/2]).
 
 -record(state, {
 }).
 
-init(_, Req, Opts) ->
-	Method = cowboy_req:method(Req),
-	#{echo := Echo} = cowboy_req:match_qs([web_handler], Req),
+init(Req, Opts) ->
 	io:format("web_handler = ~p", [Req]),
+	Method = cowboy_req:method(Req),
+	#{web_handler := Echo} = cowboy_req:match_qs([web_handler], Req),
+	io:format("web_handler = ~p", [Echo]),
 	Req2 = echo(Method, Echo, Req),
 	{ok, Req2, Opts}.
 
@@ -27,6 +25,3 @@ echo(<<"GET">>, Echo, Req) ->
 handle(Req, State=#state{}) ->
 	{ok, Req2} = cowboy_req:reply(200, Req),
 	{ok, Req2, State}.
-
-terminate(_Reason, _Req, _State) ->
-	ok.

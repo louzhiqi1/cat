@@ -19,8 +19,10 @@
 	{modules, []},
 	{applications, [
 		kernel,
+        inets,
 		stdlib,
-		cowboy
+		cowboy,
+        lager
 	]},
 	{mod, {cat_app, []}},
 	{env, []}

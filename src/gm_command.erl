@@ -26,13 +26,10 @@ do_command(<<"#crash", _Rest/bytes>>, _Role) ->
     {crash, "crash_by_gm_command"};
 %% 查询自己id
 do_command(<<"#who", _Rest/bytes>>, 
-           #role{id = Id, mapkey = {MapId, Instance}, x = X, y = Y, gold = Gold, silver = Silver} = Role) ->
+           #role{id = Id} = Role) ->
     ?DEBUG(?_U("玩家:~p执行gm命令:who"), [Id]),
-    Msg = ?S2B(lists:concat([Id, " map:", MapId, "_", Instance, " x:", X, " y:", Y, 
-                             " Gold:", Gold, " Silver:", Silver,
-                             " 作弊:", anti_cheat:get_cheat()])),
-    ?DEBUG(?_U("玩家:~p执行gm命令:who 的结果:~p"), [Id,Msg]),
-    mod_chat:send_msg_to_self(Role,  Msg),
+    Msg = ?S2B(lists:concat([Id])),
+    mod_chat:send_msg_to_self(Role, Msg),
     {ok, Role};
 do_command(_, Role) ->
     {ok, Role}.

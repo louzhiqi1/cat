@@ -48,18 +48,6 @@
 %%  on_upgrade
 %%      - 当玩家升级时调用, LvlAdd为升的级数
 %%      - Mod:on_upgrade(Role, LvlAdd)
-%%  on_enter_map | {on_enter_map, MapId}  
-%%      - 当进入地图时调用,MapId为关心的地图,对应函数Mod:on_enter_map(R, FirstEnter)
-%%  on_prepare_switch | {on_prepare_switch, MapId} 
-%%      - 当客户端请求切换地图时调用，用来判断是否可以进入，进入的地图及位置
-%%      - Mod:on_prepare_switch(Role, {MapId, Data})
-%%  on_leave_map | {on_leave_map, MapId}
-%%      - 当离开某个地图时调用
-%%  on_revive | {on_revive, MapId}
-%%      - 当在地图中复活时调用
-%%  on_dead | {on_dead, MapId}
-%%      - 当在某个地图中死亡时调用
-%%      - Mod:on_dead(Role, AerInfo)
 -callback register_event() -> [Event :: any()].
 %% 玩家初始化mod
 -callback init_role(Role :: #role{}) -> #role{} | {ok, #role{}}.
@@ -239,16 +227,6 @@ module_list() ->
 %%  any() | throw({error, Code}).
 on_event(Role, Event) ->
     on_event(Role, Event, ?NONE).
-%% 准备切图，最多一个处理模块
-on_event(Role, on_prepare_switch = Event, {MapId, _} = Data) ->
-    L = gen_mod_event_list:get(Event),
-    %?WARN(?_U("*******玩家准备切图:~p L:~p"), [Data, L]),
-    case lists:keyfind(MapId, 2, L) of
-        false ->
-            ?NONE;
-        {Mod, MapId} ->
-            Mod:on_prepare_switch(Role, Data)
-    end;
 on_event(Role, Event, Data) ->
     ArgCur = calc_event_arg(Role, Event),
     EventList = 
@@ -332,13 +310,7 @@ event_type_list() ->
 %% [{事件, 触发参数}]
 event_list() ->
     [
-	{on_upgrade, all},
-    {on_calc_role, all},
-    {on_enter_map, all}, 
-    {on_prepare_switch, all},
-    {on_leave_map, all}, 
-    {on_revive, all}, 
-    {on_dead, all}].
+	{on_upgrade, all}].
 
 %% 调用事件函数
 do_call_event(Mod, Event, Role, Data) ->
@@ -367,17 +339,6 @@ do_call_event(Mod, Event, Role, Data) ->
             ?ERROR2(?_U("模块:~p处理事件:~p出错 ~p:~p"), [Mod, Event, _T, _R]),
             Role
     end.
-
-%% 计算事件对应的参数
-calc_event_arg(#role{mapkey = {MapId, _}}, Event)
-    when 
-        Event =:= on_enter_map orelse
-        Event =:= on_prepare_switch orelse
-        Event =:= on_leave_map orelse
-        Event =:= on_revive orelse
-        Event =:= on_dead orelse
-        Event =:= on_calc_role  ->
-    MapId;
 
 %% 升级事件没参数
 calc_event_arg(#role{}, on_upgrade) ->

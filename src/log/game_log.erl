@@ -20,8 +20,8 @@
 -define(QUOTE(V), [$", V, $"]).
 
 %% @doc 注册角色
-register(RoleId, Sex, Job, Ip) ->
-    ?FILE_LOG(?LOG_REGISTER, [RoleId, Sex, Job, Ip | now_sec_to_dtw()]).
+register(RoleId, Ip) ->
+    ?FILE_LOG(?LOG_REGISTER, [RoleId, Ip | now_sec_to_dtw()]).
 
 %%--------------
 %% internal API
@@ -37,10 +37,6 @@ do_join([], Sep) when is_list(Sep) ->
     []; 
 do_join([H|T], Sep) ->
     [util:any_to_iodata(H)] ++ lists:append([[Sep, util:any_to_iodata(X)] || X <- T]).
-
-%% 总在线时间
-total_online_time(#role{total_online_time = Total, last_login_time = LastLogin}) ->
-    util:now_sec() - LastLogin + Total.
 
 %% 根据now_sec生成对应的日期
 now_sec_to_dtw() ->

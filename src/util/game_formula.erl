@@ -9,11 +9,15 @@
 -include("common.hrl").
 -include("role.hrl").
 
--export([calc_damage/3
+-export([calc_damage/3,
+		 calc_role/1
         ]).
 
 calc_damage(_, _, _) ->
     ok.
+
+calc_role(Role) ->
+	Role.
 
 
 %%---------------------

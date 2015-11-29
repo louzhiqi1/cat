@@ -111,11 +111,10 @@ init_role(Role) ->
     {ok, Role}.
 
 %% @doc 玩家结束
-terminate_role(#role{id = Id, lock_time = LockTime} = Role) ->
+terminate_role(#role{id = Id} = Role) ->
     ok = ?COUNTER_RAM:save(Id),
     ok = ?COUNTER_DAILY:save(Id),
-    serv_role_cache:notify_update_role_cache(Role),
-    Role#role{lock_time = ?IF(LockTime > util:now_sec(), LockTime, 0)}.
+    serv_role_cache:notify_update_role_cache(Role).
 
 %% 清除daily
 clear_daily(_Role) ->
@@ -123,13 +122,13 @@ clear_daily(_Role) ->
 	ok.
 
 %% 创建角色
-handle_c2s(?P_ROLE_CREATE, [Name, Sex], 
-        #role{id = 0, accname = AccName, last_login_ip = Ip, cm = Cm} = Role) ->
-    ?DEBUG(?_U("创建角色accname:~w 性别:~w 名字:~s"),
-        [AccName, Sex, Name]),
-    case catch do_create(AccName, Ip, Name, Sex, Cm) of
+handle_c2s(?P_ROLE_CREATE, [Name, Ip], 
+        #role{id = 0, accname = AccName} = Role) ->
+    ?DEBUG(?_U("创建角色accname:~w"),
+        [AccName]),
+    case catch do_create(AccName, Ip, Name) of
         {ok, Id} ->
-            game_log:register(Id, Sex, Ip),
+            game_log:register(Id, Ip),
             % client在收到创建成功后，会请求数据
             % TODO 修改成创建角色后，数据初始化完成，不用从新从数据库load数据
             role_server:s2s_cast(self(), mod_login, {login_after_create}),
@@ -140,8 +139,8 @@ handle_c2s(?P_ROLE_CREATE, [Name, Sex],
             {respon, Msg, Role}
     end;
 %% 已经创建了角色
-handle_c2s(?P_ROLE_CREATE  ,  [ _Name, _Vocation , _Sex ]  , _Role ) ->
-    {?E_ROLE_RECREATE } ;
+handle_c2s(?P_ROLE_CREATE  ,  [ _Name, _Vocation]  , _Role ) ->
+    {?E_ROLE_RECREATE} ;
 
 handle_c2s(_Fi, _Data, Role) ->  
     ?WARN(?_U("未知的协议请求:~p data:~p"), [_Fi, _Data]),
@@ -156,15 +155,12 @@ handle_timeout(_Event, Role) ->
 %%-----------------------------
 
 %% 充值(后台使用)
-handle_s2s_call({admin_payment, Gold}, #role{gold_give = GoldGive, total_payment = Old, vip = OldVip} = Role) ->
+handle_s2s_call({admin_payment, Gold}, #role{gold = Gold, total_payment = Old} = Role) ->
     ?DEBUG(?_U("玩家~p, 充值：~p"), [Role#role.id, Gold]),
     GoldSum = Old + Gold,
-    VipNew = role_vip:calc_vip_lvl(GoldSum + GoldGive),
-    Role2 = role_vip:set(Role#role{total_payment = GoldSum}, VipNew),
-    Role3 = role_internal:inc_gold(Role2, Gold),
-    game_log:gold(Role3, Gold, ?LOG_EARN_GOLD_TYPE_PAYMENT),
-    on_payment(Role3, Gold, OldVip, Old),
-    {ok, ok, Role3};
+    Role2 = role_internal:inc_gold(Role, Gold),
+    game_log:gold(Role2, Gold, ?LOG_EARN_GOLD_TYPE_PAYMENT),
+    {ok, ok, Role2};
 handle_s2s_call(_Req, Role) ->
     ?DEBUG(?_U("收到s2s_call请求:~p"), [_Req]),
     {ok, Role}.
@@ -198,15 +194,13 @@ do_on_payment(Role, _PayGold, _OldVip, OldTotalPayment) ->
 %% 2,职业合法?否,返回错误
 %% 3,性别合法?否,返回错误
 %% 4,创建玩家
-do_create(AccName, Ip, Name, Sex, Cm) ->
+do_create(AccName, Ip, Name) ->
     % 1
     ?IF(util:is_text_valid(Name, 2, 7), ok, ?C2SERR(?E_ROLE_NAME_LONG)),
     ?IF(util:is_text_valid(AccName, 1, 24), ok, ?C2SERR(?E_ROLE_ACCNAME_LONG)),
 
-    % 3
-    ?IF(Sex =:= ?SEX_FEMALE orelse Sex =:= ?SEX_MALE, ok,
-        ?C2SERR(?E_ROLE_SEX_INVALID)),
     % 4
     Id = serv_id:role(),
     ?DEBUG(?_U("创建玩家:~p对应id:~p"), [AccName, Id]),
-    db_role:create(Id, AccName, Ip, Name, Sex, Cm).         
+
+    db_role:create(Id, AccName, Ip, Name).         

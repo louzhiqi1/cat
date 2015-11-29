@@ -42,18 +42,5 @@ do_write([_A, _B, _C, _D]) ->
     %    [?N2S(util:now_sec()), ?TAB, A, ?TAB, B, ?TAB, C, ?TAB, D, "\n"]).
 
 %% 聊天日志监控
-do_chat_monitor(Role, Content) ->
-    Platform = ?CONFIG(platform, "dev"),
-    case Platform of
-        "4399" ->
-            Args = ?CONFIG("4399"),
-            case ?KV_GET(chat_monitor, Args, false) of
-                true ->
-                    #role{accname = AccName, name = RoleName, last_login_ip = Ip} = Role,
-                    platform_4399_chat_monitor:write(AccName, RoleName, Ip, Content);
-                false ->
-                    ok
-            end;
-        _ ->
-            ok
-    end.
+do_chat_monitor(_Role, _Content) ->
+    ok.

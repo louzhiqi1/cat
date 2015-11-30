@@ -12,6 +12,8 @@
 -export([start/0, stop_server/1]).
 -export([start/2, stop/1]).
 
+-export([debug/0]).
+
 -include("wg_log.hrl").
 -include("common.hrl").
 
@@ -23,7 +25,7 @@ start() ->
         ok = application:start(game)
     catch
         Type:Error ->
-            ?ERROR2(?_U("启动游戏服务器出错:~p:~p"), [Type, Error]),
+            lager:error("启动游戏服务器出错:~p:~p", [Type, Error]),
             init:stop(?STATUS_ERROR)
     end.
 
@@ -53,9 +55,12 @@ stop(_State) ->
         log_init:stop()
     catch
         _T:_R ->
-            ?ERROR2(?_U("停止app保存数据出错 ~p:~p"), [_T, _R])
+            lager:error("停止app保存数据出错 ~p:~p", [_T, _R])
     end,
 	ok.
+
+debug() ->
+    lager:error(?_U("这是一个错误: ~p "), [pass]).
 
 
 %%----------------------

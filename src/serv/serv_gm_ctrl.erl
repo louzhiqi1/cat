@@ -68,7 +68,7 @@ delete_chat_ban(Target) ->
 
 %% @doc 初始化
 init() ->
-    ?INFO(?_U("初始化禁封列表"),[]),
+    lager:info("初始化禁封列表"),
     ?TABLE = ets:new(?TABLE, [set, public, named_table, 
                               {keypos, #gm_ctrl.id}, {read_concurrency, true}]),
     ok = do_load_data(),
@@ -136,7 +136,7 @@ get_chat_ban(Target) ->
 
 %% 获取被禁记录
 get(CtrlType, Target) ->
-    ?DEBUG(?_U("获取被禁记录，CtrlType:~p, Target:~p"),[CtrlType, Target]),
+    lager:debug("获取被禁记录，CtrlType:~p, Target:~p",[CtrlType, Target]),
     case ets:lookup(?TABLE, {CtrlType, Target}) of
         [] ->
             ?NONE;
@@ -146,7 +146,7 @@ get(CtrlType, Target) ->
 
 %% 被禁记录是否已经存在且在有效时间内
 is_timein_exists(CtrlType, Target) ->
-    ?DEBUG(?_U("被禁记录是否已经存在，CtrlType:~p, Target:~p"),[CtrlType, Target]),
+    lager:debug("被禁记录是否已经存在，CtrlType:~p, Target:~p",[CtrlType, Target]),
     case ets:lookup(?TABLE, {CtrlType, Target}) of
         [] ->
             %?DEBUG(?_U("被禁记录不存在，CtrlType:~p, Target:~p"),[CtrlType, Target]),
@@ -231,7 +231,7 @@ do_load_data() ->
 
 %% 加载数据
 do_insert(List) ->
-    ?INFO(?_U("加载被禁记录条数:~b"), [length(List)]),
+    lager:info("加载被禁记录条数:~b", [length(List)]),
     [begin
         GmCtrl = trans_gm_ctrl(Row),
         true = ets:insert(?TABLE, GmCtrl)

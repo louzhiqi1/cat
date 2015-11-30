@@ -59,7 +59,7 @@
         do_cast(Req, State)
     catch
         Class:Error ->
-            ?ERROR2("handle cast:~p error\n~p:~p", [Req, Class, Error]),
+            lager:error("handle cast:~p error\n~p:~p", [Req, Class, Error]),
             {noreply, State}
     end).
 %% 封装处理handle_call
@@ -69,7 +69,7 @@
         do_call(Req, From, State)
     catch
         Class:Error ->
-            ?ERROR2("handle call:~p error\n~p:~p", [Req, Class, Error]),
+            lager:error("handle call:~p error\n~p:~p", [Req, Class, Error]),
             {noreply, State}
     end).
 %% 封装处理handle_info
@@ -78,7 +78,7 @@
         do_info(Req, State)
     catch
         Class:Error ->
-            ?ERROR2("handle info:~p error\n~p:~p", [Req, Class, Error]),
+            lager:error("handle info:~p error\n~p:~p", [Req, Class, Error]),
             {noreply, State}
     end).
 

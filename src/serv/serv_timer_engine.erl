@@ -59,7 +59,7 @@ handle_info(_Info, State) ->
     {noreply, State}.
 
 terminate(_Reason, _State) ->
-    ?DEBUG(?_U("进程停止:~p"), [_Reason]),
+    lager:debug("进程停止:~p", [_Reason]),
     ok.
 
 code_change(_Old, State, _Extra) ->

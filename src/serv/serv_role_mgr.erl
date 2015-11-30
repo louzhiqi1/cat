@@ -147,7 +147,7 @@ send_all(SendType, Data) ->
 %% @doc 将数据发送给所有玩家, 除去Exclude
 send_all_exclude(PidList, SendType, Data) ->
 	AllPid = exclude_pid_list(PidList, pid_list()),
-	?DEBUG(?_U("过滤后的Pid列表~p"), [AllPid]),
+	lager:debug("过滤后的Pid列表~p", [AllPid]),
     [role_server:SendType(Pid, Data) || Pid <- AllPid],
     ok.
 

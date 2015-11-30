@@ -116,7 +116,7 @@ start_child(Sup, Child) ->
         {error, {{already_started, _Pid}, _}} ->
             ok;
         Other ->
-            ?ERROR(?_U("启动服务:~p失败:~p"), [Child, Other]),
+            lager:error("启动服务:~p失败:~p", [Child, Other]),
             throw(Other)
     end.
 

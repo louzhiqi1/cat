@@ -143,7 +143,7 @@ do_invoke_timeout(Ref, #timer_data{mod = Mod, msg = Msg, time = Time, loop = Loo
         State2
     catch
         _T:_R ->
-            ?ERROR2(?_U(":~p处理timeout:~p 错误~p:~p"), [Mod, Msg, _T, _R]),
+            lager:error(":~p处理timeout:~p 错误~p:~p", [Mod, Msg, _T, _R]),
             do_delete_timer(Ref),
             State
     end.

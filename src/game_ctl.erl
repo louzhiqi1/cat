@@ -93,7 +93,7 @@ process(["stop", Sync | _]) ->
     catch
         Class:Reason ->
             ?PRINT("stop game server error ~w:~w", [Class, Reason]),
-            ?ERROR2("********* stop ~p:~p", [Class, Reason]),
+            lager:error("********* stop ~p:~p", [Class, Reason]),
             ?STATUS_ERROR
     end;
 

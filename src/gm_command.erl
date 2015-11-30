@@ -27,7 +27,7 @@ do_command(<<"#crash", _Rest/bytes>>, _Role) ->
 %% 查询自己id
 do_command(<<"#who", _Rest/bytes>>, 
            #role{id = Id} = Role) ->
-    ?DEBUG(?_U("玩家:~p执行gm命令:who"), [Id]),
+    lager:error("玩家:~p执行gm命令:who", [Id]),
     Msg = ?S2B(lists:concat([Id])),
     mod_chat:send_msg_to_self(Role, Msg),
     {ok, Role};

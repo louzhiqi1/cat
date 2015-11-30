@@ -64,5 +64,5 @@ do_load_game_conf() ->
           {config_dir, ConfigDir},
           {data_dir, DataDir},
           {run_log_dir, RunLogDir} | LCommon],
-    ?INFO(?_U("加载config:~p"), [L2]),
+    lager:info("加载config:~p", [L2]),
     wg_config_dynamic:compile(?GAME_CONF_MOD, L2, 1, EbinDir).

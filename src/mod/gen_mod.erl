@@ -96,7 +96,7 @@ init() ->
             end
         catch
             T:R ->
-                ?ERROR(?_U("模块:~p init 失败 ~p:~p"), [Mod, T, R]),
+                lager:error("模块:~p init 失败 ~p:~p", [Mod, T, R]),
                 exit(normal)
         end
     end || File <- filelib:wildcard(?CODE_PATH ++ "/mod_*.beam")],
@@ -116,7 +116,6 @@ init_role(Role) ->
     lists:foldl(
     fun({Mod, _, SyncTime, SyncFun}, Acc) ->
         try 
-            %?WARN("mod ~p init_role", [Mod]),
             Acc3 = 
             case Mod:init_role(Acc) of
                 {ok, Acc2} ->
@@ -129,7 +128,7 @@ init_role(Role) ->
             Acc3
         catch
             T:R ->
-                ?ERROR2(?_U("玩家:~p模块~p初始化失败~p:~p"), 
+                lager:error("玩家:~p模块~p初始化失败~p:~p", 
                     [Role#role.id, Mod, T, R]),
                 erlang:raise(T, R, erlang:get_stacktrace())
         end 
@@ -163,7 +162,7 @@ terminate_role(Role) ->
             Acc3
         catch
             T:R ->
-                ?ERROR(?_U("玩家:~p模块~p结束失败~p:~p"),
+                lager:error("玩家:~p模块~p结束失败~p:~p",
                     [Role#role.id, Mod, T, R]),
                 erlang:raise(T, R, erlang:get_stacktrace())
         end
@@ -178,7 +177,7 @@ clear_daily(Role) ->
             Mod:clear_daily(Role)
         catch
             T:R ->
-                ?ERROR(?_U("玩家:~p模块~p清理每日数据失败~p:~p"),
+                lager:error("玩家:~p模块~p清理每日数据失败~p:~p",
                     [Role#role.id, Mod, T, R]),
                 erlang:raise(T, R, erlang:get_stacktrace())
         end
@@ -196,7 +195,7 @@ i(Role) ->
 i(Role, Mod) ->
     case catch Mod:i(Role) of
         {'EXIT', _Other} ->
-            ?ERROR(?_U("模块:~p i信息出错:~p"), [Mod, _Other]),
+            lager:error("模块:~p i信息出错:~p", [Mod, _Other]),
             ?NONE;
         Val ->
             %?DEBUG(?_U("模块:~p i信息:~p"), [Mod, Val]),
@@ -213,7 +212,7 @@ p(Info) ->
             true ->
                 Ret;
             false ->
-                ?ERROR(?_U("~w:p/1返回的数据不是字符串!"), [Mod]),
+                lager:error("~w:p/1返回的数据不是字符串!", [Mod]),
                 ""
         end
     end || {Mod, _, _, _} <- module_list()].
@@ -277,7 +276,7 @@ do_compile_event(ModList) ->
                                 true ->
                                     [{Event, EventData} | Acc];
                                 false ->
-                                    ?ERROR(?_U("模块:~p注册未知的事件:~p"), [Mod, Event]),
+                                    lager:error("模块:~p注册未知的事件:~p", [Mod, Event]),
                                     exit(normal)
                             end
                     end, [], EventList),
@@ -285,7 +284,7 @@ do_compile_event(ModList) ->
             end
         catch
             T:R ->
-                ?ERROR(?_U("模块:~p register event 失败 ~p:~p"), [Mod, T, R]),
+                lager:error("模块:~p register event 失败 ~p:~p", [Mod, T, R]),
                 exit(normal)
         end
     end || {Mod, _, _, _} <- ModList],
@@ -331,12 +330,12 @@ do_call_event(Mod, Event, Role, Data) ->
             #role{} = Role2 ->
                 Role2;
             _Other ->
-                ?WARN(?_U("模块:~p处理事件~p返回未知值:~p"), [Mod, Event, _Other]),
+                lager:error("模块:~p处理事件~p返回未知值:~p", [Mod, Event, _Other]),
                 Role
         end
     catch
         _T:_R ->
-            ?ERROR2(?_U("模块:~p处理事件:~p出错 ~p:~p"), [Mod, Event, _T, _R]),
+            lager:error("模块:~p处理事件:~p出错 ~p:~p", [Mod, Event, _T, _R]),
             Role
     end.
 

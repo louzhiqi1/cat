@@ -54,25 +54,20 @@ check_heart_quick(?ROLE_LOGIN_POLICY) ->
 check_heart_quick(#role{login_state = ?ROLE_LOGIN_WAITING}) ->
     ok;
 check_heart_quick(_Role) ->
-    case is_check_heart() of
-        false ->
-            ok;
-        true ->
-            LastTime = get_heart_last_value(?HEART_LAST_TIME),
-            QuickCount = get_heart_last_value(?HEART_QUICK_COUNT),
-            Now = util:now_ms_no_cache(),
-            case LastTime of
-                0 ->
-                    QuickCount2 = QuickCount;
-                _ ->
-                    Diff = Now - LastTime,
-                    %?WARN("**hyeart diff:~p", [Diff]),
-                    {ok, Score, QuickCount2} = do_calc_heart_quick_score(Diff, QuickCount),
-                    ?IF(Score =/= 0, inc_cheat(Score), ok)
-            end,
-            set_heart_last_value(?HEART_LAST_TIME, Now),
-            set_heart_last_value(?HEART_QUICK_COUNT, QuickCount2)
-    end.
+    LastTime = get_heart_last_value(?HEART_LAST_TIME),
+    QuickCount = get_heart_last_value(?HEART_QUICK_COUNT),
+    Now = util:now_ms_no_cache(),
+    case LastTime of
+        0 ->
+            QuickCount2 = QuickCount;
+        _ ->
+            Diff = Now - LastTime,
+            %?WARN("**hyeart diff:~p", [Diff]),
+            {ok, Score, QuickCount2} = do_calc_heart_quick_score(Diff, QuickCount),
+            ?IF(Score =/= 0, inc_cheat(Score), ok)
+    end,
+    set_heart_last_value(?HEART_LAST_TIME, Now),
+    set_heart_last_value(?HEART_QUICK_COUNT, QuickCount2).
 
 %% 进行超时检测
 check_heart_timeout(?ROLE_LOGIN_POLICY) ->
@@ -104,37 +99,6 @@ check_heart_timeout(#role{sock = Sock, accname = _AccName}) ->
             ok
     end.
 
-%% @doc 设置是否开启关闭位置检测(T为关闭时间ms)
-%% 设置关闭时间时，确保不会把时间缩短
--define(POS_CHECK_SWITCH_KEY, anti_cheat_pos_check_switch).
-set_pos_check_stop(T) when is_integer(T) ->
-    Now = util:now_ms_no_cache(),
-    T2 = Now + T,
-    case T2 > get_pos_check_stop()  of
-        true ->
-            %?WARN("****set check stop t:~p now:~p", [T2, Now]),
-            erlang:put(?POS_CHECK_SWITCH_KEY, T2);
-        false ->
-            ok
-    end.
-
-%% 获取检测关闭时间
-get_pos_check_stop() ->
-    case erlang:get(?POS_CHECK_SWITCH_KEY) of
-        undefined ->
-            0;
-        V ->
-            V
-    end.
-
-%% @doc 位置检测是否关闭
-is_pos_check_stop(Now) ->
-    case get_pos_check_stop() of
-        0 ->
-            false;
-        V ->
-            V > Now
-    end.
 
 %% @doc 尝试启动检测timer
 try_start_timer(_Role) ->
@@ -143,12 +107,11 @@ try_start_timer(_Role) ->
 
 %% @doc 执行检测逻辑
 handle_timeout(check_anti_cheat, Role) ->
-    CheckLvl = get_check_lvl(),
-    ?IF(CheckLvl =/= 0, do_check(Role), ok).
+    do_check(Role).
 
 %% @doc 增加作弊值,超过300分会认为使用了外挂
 inc_cheat(V) when is_integer(V), V > 0, V =< 100 ->
-    %?ERROR2(?_U("增加作弊分数:~p"), [V]),
+    lager:error("增加作弊分数:~p", [V]),
     ?COUNTER_DB:inc(?COUNTER_ANTI_CHEAT_SCORE, V).
 
 %% @doc 减少作弊值
@@ -170,23 +133,6 @@ get_lock_times() ->
 %%----------------
 %% internal API
 %%----------------
-
-%% 是否检测心跳
-is_check_heart() ->
-    is_check_heart(get_check_lvl()).
-is_check_heart(CheckLvl) ->
-    CheckLvl >= ?ANTI_CHEAT_LVL_HEART.
-
-%% 是否检测移动
-is_check_move() ->
-    is_check_move(get_check_lvl()).
-is_check_move(CheckLvl) ->
-    CheckLvl >= ?ANTI_CHEAT_LVL_MAX.
-
-%% 获取检测配置
-get_check_lvl() ->
-    ?CONFIG(anti_cheat, ?ANTI_CHEAT_LVL_HEART).
-
 %%------------
 %% 心跳检测
 %%------------
@@ -240,41 +186,6 @@ do_calc_lock_time(Times) ->
     LockTimeDef = ?CONFIG(cheat_lock_time, 60),
     erlang:min(LockTimeDef * Times, 36000).
 
-%% 检测移动
-%% 1,计算时间间隔
-%% 2,计算距离和速度
-%% 3,检测是否合法
-%% 4,更新数据
-do_check_move_internal(Type, P, Now, PPrev, TimePrev, RangeMax, SpeedMax) ->
-    % 1
-    TimeDiff = erlang:max(1, Now - TimePrev),
-    %?WARN("timediff:~p", [TimeDiff]),
-    % 2
-    PRange = erlang:abs(PPrev - P),
-    PSpeed = PRange * 1000 div TimeDiff,
-    %?WARN("~p range:~p/~p speed:~p/~p", [?IF(Type =:= 1001, "x", "y"), PRange, RangeMax, PSpeed, SpeedMax]),
-
-    % 3
-    InvalidTimes =
-    case PRange > RangeMax andalso PSpeed > SpeedMax of
-        true ->
-            inc_invalid_cont_times();
-        false ->
-            clear_invalid_cont_times(),
-            0
-    end,
-    ?IF(InvalidTimes >= 2, inc_cheat(?ANTI_CHEAT_SCORE_4), ok),
-
-    % 4
-    ?COUNTER_RAM:inc(Type, PRange),
-    ok.
-
-%% 设置移动不合法连续次数
--define(MOVE_INVALID_CONT_TIMES, anti_cheat_invalid_cont_times).
-set_invalid_cont_times(N) ->
-    erlang:put(?MOVE_INVALID_CONT_TIMES, N),
-    ok.
-
 %%----------------
 %% 检测逻辑
 %%----------------
@@ -291,23 +202,3 @@ do_check(#role{id = _Id}) ->
         false ->
             ok
     end.
-
-%% 获取移动不合法连续次数
-get_invalid_cont_times() ->
-    case erlang:get(?MOVE_INVALID_CONT_TIMES) of
-        undefined ->
-            0;
-        N ->
-            N
-    end.
-
-%% 增加移动不合法连续次数
-inc_invalid_cont_times() ->
-    N = get_invalid_cont_times() + 1,
-    set_invalid_cont_times(N),
-    N.
-
-%% 清理移动不合法连续系数
-clear_invalid_cont_times() ->
-    erlang:erase(?MOVE_INVALID_CONT_TIMES),
-    ok.

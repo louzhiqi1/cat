@@ -35,8 +35,6 @@ start_link( _Args ) ->
 
     ok = gen_mod:init(),
 
-    ok = start_wg_stats(Sup), 
-
     {ok, _Pid} = start_httpd(),
 
     CronFile = game_path:config_file("game.crontab"),
@@ -87,23 +85,6 @@ start_reloader(Sup) ->
         permanent, brutal_kill, worker, [wg_reloader]},
     ok = util:start_child(Sup, Child),
     ok.
-
-
-%% 启动统计信息
-%% 检测消息队列，内存长度，如果超过一定值会kill相关进程
-%% 并创建文件*.dump文件
-start_wg_stats(Sup) ->
-    FunOnDump =
-    fun() ->
-        [] 
-    end,
-    ErrorLoggerDir = game_path:run_log_dir(),
-    PidNameList = [<<"mapi_">>, <<"mapm_">>, <<"rid">>],
-    PlanArgs = init:get_plain_arguments(),
-    CheckErrorLogger = lists:member("start", PlanArgs),
-    ?INFO(?_U("启动wg_stats")),
-    util:start_child(Sup, {wg_stats, {wg_stats, start_link, [ErrorLoggerDir, PidNameList, FunOnDump, CheckErrorLogger]},
-                                permanent, brutal_kill, worker, [wg_stats]}).
 
 
 start_httpd() ->

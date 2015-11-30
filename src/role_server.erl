@@ -245,7 +245,7 @@ terminate(_Reason, #role{sock = Sock, id = Id} = Role) ->
         ?IF(Id =/= 0, do_log_logout(Role2, TerminateR), ok)
     catch 
         Error:Reason ->
-            ?ERROR2("logout error ~p:~p" , [Error , Reason]) 
+            lager:error("logout error ~p:~p" , [Error , Reason]) 
     end.
 
 code_change( _OldVsn, State, _Extra) ->
@@ -344,13 +344,13 @@ do_call({apply, Fun}, _From, State)->
         {ok, #role{} = State2} ->
             {reply, ok, State2};
         {error, Code} ->
-            ?WARN(?_U("执行apply函数返回错误码:~p"), [Code]),
+            lager:warning("执行apply函数返回错误码:~p", [Code]),
             {reply, {error, Code}, State};
         {'EXIT', _Reason} ->
-            ?ERROR(?_U("执行apply函数出错:~p"), [_Reason]),
+            lager:error("执行apply函数出错:~p", [_Reason]),
             {reply, {error, _Reason}, State};
         _Other ->
-            ?DEBUG(?_U("执行apply函数返回:~p"), [_Other]),
+            lager:debug("执行apply函数返回:~p", [_Other]),
             {reply, _Other, State}
     end;
 do_call( _Request, _From, State ) ->
@@ -382,7 +382,7 @@ do_cast({active, Sock}, ?ROLE_LOGIN_POLICY) ->
             {ok, State3} = on_set_socket(State2),
             {noreply, State3};
         _Other ->
-            ?DEBUG("wait active error :~p~n" , [_Other]),
+            lager:debug("wait active error :~p~n" , [_Other]),
             util:set_terminate_reason(waiting_active),
             {stop, normal, #role{login_state = ?ROLE_LOGIN_WAITING}}
     end ;
@@ -415,7 +415,7 @@ do_cast({s2s_cast, Mod, Req}, State) ->
             do_update_role(State2),
             {noreply , State2};
         _Other ->    
-            ?WARN(?_U("处理模块~p s2s_cast:~p出错: ~p"), [Module, Req, _Other]),
+            lager:warning("处理模块~p s2s_cast:~p出错: ~p", [Module, Req, _Other]),
             {noreply , State}
     end;
 %% timeout事件,由wg_timer_engine产生
@@ -425,7 +425,7 @@ do_cast(?TIMEOUT_EVENT, State) ->
     {noreply, State3};
 %% 清理counter
 do_cast(clear_counter, State) ->
-    ?DEBUG(?_U("玩家:~p清理counter"), [State#role.id]),
+    lager:debug("玩家:~p清理counter", [State#role.id]),
     % 不能清空db counter!
     ok = ?COUNTER_DAILY:clear(),
  	% 每个模块清理daily
@@ -439,7 +439,7 @@ do_cast({async_stop, Reason}, State) ->
     {stop, normal, State};
 
 do_cast(Msg, State) ->
-    ?ERROR("unkonw messsage : ~p~n" , [ Msg ] ) ,
+    lager:error("unkonw messsage : ~p~n" , [Msg]),
     {noreply, State}.
 
 %%------------------
@@ -487,7 +487,7 @@ do_info({'EXIT', Sock, _Reason}, State = #role{sock = Sock}) ->
     State2 = do_when_socket_closed(closed, State),
     {noreply, State2};
 do_info({tcp_error, Sock, Reason}, #role{sock = Sock} = State) ->
-    ?WARN("role ~p tcp error ~p", [State#role.id, Reason]),
+    lager:debug("role ~p tcp error ~p", [State#role.id, Reason]),
     util:set_terminate_reason(?LOG_LOGOUT_TYPE_TCP_ERROR),
     {stop, normal, State};
 %% 处理inet_reply
@@ -565,31 +565,31 @@ handle_c2s_reply({ok, State}, _, _) ->
 handle_c2s_reply({ok, Reply, State}, _, _) ->
     {ok, Reply, State};
 handle_c2s_reply({crash, Reason}, _, Role) ->
-    ?ERROR(?_U("玩家:~pcrash:~p"), [Role#role.id, Reason]),
+    lager:error("玩家:~pcrash:~p", [Role#role.id, Reason]),
     {stop, Role};
 handle_c2s_reply({respon, Respon, State}, {c2s, Mi, Fi, _Req}, _) ->
     ?IF(Respon =:= ?E_UNKONW_DATA,
-        ?DEBUG(?_U("***玩家~p的请求~p-~p未知:~p!"), [State#role.id, Mi, Fi, _Req]),
+        lager:debug("***玩家~p的请求~p-~p未知:~p!", [State#role.id, Mi, Fi, _Req]),
         ok),
     Data = pack:pack_msg(Mi, Fi, Respon ),
     do_send_data(Data, State),
     {ok, State};
 handle_c2s_reply({'EXIT', relogin}, _, State) ->
-    ?DEBUG(?_U("玩家已经登录...使用原进程，本进程退出")),
+    lager:debug("玩家已经登录...使用原进程，本进程退出"),
     util:set_terminate_reason(relogin),
     {stop, State};
 handle_c2s_reply({'EXIT', _Reason}, {c2s, Mi, Fi, _Req}, State) ->
-    ?ERROR2(?_U("玩家~p处理请求~p-~p:~p错误:~p"), [State#role.id , Mi, Fi, _Req, _Reason]),
+    lager:error("玩家~p处理请求~p-~p:~p错误:~p", [State#role.id , Mi, Fi, _Req, _Reason]),
     {ok, State};
 handle_c2s_reply({error, _Reason}, {c2s, Mi, Fi, _Req}, State) ->
-    ?ERROR2(?_U("玩家~p处理请求~p-~p:~p错误:~p"), [State#role.id , Mi, Fi, _Req, _Reason]),
+    lager:error("玩家~p处理请求~p-~p:~p错误:~p", [State#role.id , Mi, Fi, _Req, _Reason]),
     {ok, State};
 handle_c2s_reply(Response, {c2s, Mi, Fi, _Req}, State) ->
     Bin = pack:pack_msg(Mi, Fi, Response),
     do_send_data(Bin, State),
     {ok, State};
 handle_c2s_reply(_Reason, Data, State) ->
-    ?ERROR2(?_U("玩家~p处理请求~p错误:~p"), [State#role.id , Data, _Reason]),
+    lager:error("玩家~p处理请求~p错误:~p", [State#role.id , Data, _Reason]),
     {ok, State}.
 
 %% 异步接受信息
@@ -644,7 +644,7 @@ do_when_socket_closed(_Reason, #role{connect_lost = true} = State) ->
     %?WARN(?_U("玩家socket已经出错"), []),
     State;
 do_when_socket_closed(_Reason, #role{login_state = ?ROLE_LOGIN_FINISH} = State) ->
-    ?DEBUG(?_U("玩家~p socket error:~p 启动保护timer!"), [State#role.id, _Reason]),
+    lager:debug("玩家~p socket error:~p 启动保护timer!", [State#role.id, _Reason]),
     % 启动保护时间 ,若玩家是在死亡状态断线的，不进行保护。
     ?IF(role_status:in_dead(State),
         (self() ! ?CONNECT_LOST_EVENT), 
@@ -659,7 +659,7 @@ do_when_socket_closed(_Reason, State) ->
 %% a,否，注册名称
 %% b,是，则通知原玩家更新socket,此进程退出
 do_login(#role{id = Rid}, 3) ->
-    ?ERROR(?_U("玩家~p尝试登录失败"), [Rid]),
+    lager:error("玩家~p尝试登录失败", [Rid]),
     exit(relogin_limit);
 do_login(#role{id = Rid, sock = Sock} = Role, N) ->
     case pid(Rid) of
@@ -667,7 +667,7 @@ do_login(#role{id = Rid, sock = Sock} = Role, N) ->
             % a
             case catch erlang:register(util:role_name(Rid), self()) of
                 {'EXIT', {badarg, _}} ->
-                    ?ERROR("role ~p register name error!", [Rid]),
+                    lager:error("role ~p register name error!", [Rid]),
                     exit(register_name);
                 true ->
                     Role1 = Role#role{login_state = ?ROLE_LOGIN_FINISH},
@@ -690,7 +690,7 @@ do_login(#role{id = Rid, sock = Sock} = Role, N) ->
                 exit:relogin ->
                     exit(relogin);
                 _T:_R ->
-                    ?WARN("role pid:~p check duplicate ~p:~p", [Pid, _T, _R]),
+                    lager:warning("role pid:~p check duplicate ~p:~p", [Pid, _T, _R]),
                     do_login(Role, N + 1)
             end
     end.
@@ -807,7 +807,7 @@ do_track_out(Id, Data) ->
         {10, 10} ->
             ok;
         {50,1} ->
-            ?VERBOSE(?_U("*OUT* 向玩家:~p发送应答~p-~p 数据(长度:~p):~w"), [Id, Mi, Fi, Len, Respon]);
+            lager:info("*OUT* 向玩家:~p发送应答~p-~p 数据(长度:~p):~w", [Id, Mi, Fi, Len, Respon]);
         _ ->
 %%             ?VERBOSE(?_U("*OUT* 向玩家:~p发送应答~p-~p 数据(长度:~p):~w"), [Id, Mi, Fi, Len, Respon]),
             ok
@@ -1010,7 +1010,7 @@ traffic_check(Role) ->
         ok ->
             ok;
         _Other ->
-            ?WARN(?_U("流量检测出错:~p"), [_Other]),
+            lager:warning("流量检测出错:~p", [_Other]),
             ok
     end.
 do_traffic_check(?ROLE_LOGIN_POLICY) ->
@@ -1054,7 +1054,7 @@ do_traffic_check(#role{sock = Sock, id = _RoleId}) ->
             Count2 = ?IF(Overflow, Count + 1, Count),
             case Count2 =:= ?TRAFFIC_OVER_MAX of
                 true ->
-                    ?WARN(?_U("玩家:~p每秒发包流量:~p包/s ~p字节/s"), [_RoleId, PacketPS, BytePS]),
+                    lager:warning("玩家:~p每秒发包流量:~p包/s ~p字节/s", [_RoleId, PacketPS, BytePS]),
                     notify_self_tcp_error(Sock, Code);
                 false ->
                     ?IF(Overflow,
@@ -1117,7 +1117,7 @@ do_i(Role, Mod) when is_atom(Mod) ->
 do_p(Info) ->
     Str = lists:flatten(gen_mod:p(Info)),
     io:format(
-    ?_U("玩家信息~n~80..=s~n"
-    "~ts"),
+    "玩家信息~n~80..=s~n"
+    "~ts",
     ["=", Str]),
     ok.

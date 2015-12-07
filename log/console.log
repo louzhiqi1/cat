@@ -282,3 +282,81 @@
 2015-11-30 08:15:14.364 [error] <0.42.0>@game:debug:63 FORMAT ERROR: [36825,26159,19968,20010,38169,35823,58,32,126,112] [pass]
 2015-11-30 08:16:10.325 [error] <0.42.0>@game:debug:63 FORMAT ERROR: [36825,26159,19968,20010,38169,35823,58,32,126,112,32] [pass]
 2015-11-30 08:17:17.536 [error] <0.42.0>@game:debug:63 FORMAT ERROR: [36825,26159,19968,20010,38169,35823,58,32,126,112,32] [pass]
+2015-12-04 05:55:34.407 [info] <0.7.0> Application lager started on node cat@localhost
+2015-12-04 05:55:34.430 [info] <0.7.0> Application sasl started on node cat@localhost
+2015-12-04 05:55:34.445 [info] <0.7.0> Application ranch started on node cat@localhost
+2015-12-04 05:55:34.460 [info] <0.7.0> Application crypto started on node cat@localhost
+2015-12-04 05:55:34.471 [info] <0.7.0> Application cowlib started on node cat@localhost
+2015-12-04 05:55:34.486 [info] <0.7.0> Application cowboy started on node cat@localhost
+2015-12-04 05:55:34.502 [info] <0.98.0>@game_config:do_load_game_conf:67 FORMAT ERROR: [21152,36733,99,111,110,102,105,103,58,126,112] [[{gate_port,9001},{admin_port,8001},{server_id,0},{open_fcm,false},{db_host,"127.0.0.1"},{db_port,8888},{root_dir,"/mnt/hgfs/git_rep/cat"},{ebin_dir,"/mnt/hgfs/git_rep/cat/ebin"},{log_dir,"/data/logs/cat"},{config_dir,"/mnt/hgfs/git_rep/cat/config"},{data_dir,"/mnt/hgfs/git_rep/cat/data"},{run_log_dir,"/mnt/hgfs/git_rep/cat/log"},{gate_ip,"0.0.0.0"},{gate_conn_max,4000},{admin_ip,"0.0.0.0"},{admin_key,"fc0faf1cb1478a85d5ab7089ff3233d0"},{admin_allow_ip,["127.0.0.1","121.10.118.225","112.91.23.225"]},{db_game,{"localhost",3306,"root","root",8}},{db_admin,{"localhost",3306,"root","root",8}},{sql_statis,false},{gm_default,true},{guest,true},{login_auth,false},{{map_role_max,11000},80},{{map_role_max,40001},50},{map_role_max,30},{max_role_cache_size,500},{daily_load_type,db},{anti_cheat,1},{cheat_lock_time,60},{x_speed_max,250},{"dev",[]},{"4399",[{auth_key_timeout,30},{chat_monitor,false},{chat_monitor_ip,"mxqy.msg.we4399.com"},{chat_monitor_port,5864}]},{"yy",[{auth_key_timeout,30}]}]]
+2015-12-04 05:55:34.513 [error] <0.98.0>@game_sup:start_reloader:82 reloader start
+2015-12-04 05:55:34.589 [error] <0.98.0>@util:start_child:119 FORMAT ERROR: [21551,21160,26381,21153,58,126,112,22833,36133,58,126,112] [{essdb_sup,{db_sup,start_link,[]},permanent,brutal_kill,supervisor,[essdb_sup]},{error,{{shutdown,{failed_to_start_child,{essdb_client,<0.110.0>,1},{connection_error,{connection_error,econnrefused}}}},{child,undefined,essdb_sup,{db_sup,start_link,[]},permanent,brutal_kill,supervisor,[essdb_sup]}}}]
+2015-12-04 05:55:34.590 [error] <0.2.0>@game:start:28 FORMAT ERROR: [21551,21160,28216,25103,26381,21153,22120,20986,38169,58,126,112,58,126,112] [error,{badmatch,{error,{{{shutdown,{failed_to_start_child,{essdb_client,<0.110.0>,1},{connection_error,{connection_error,econnrefused}}}},{child,undefined,essdb_sup,{db_sup,start_link,[]},permanent,brutal_kill,supervisor,[essdb_sup]}},{game,start,[normal,[]]}}}}]
+2015-12-04 05:55:34.593 [error] <0.111.0> CRASH REPORT Process <0.111.0> with 0 neighbours exited with reason: {connection_error,{connection_error,econnrefused}} in gen_server:init_it/6 line 344
+2015-12-04 05:55:34.594 [error] <0.110.0> Supervisor db_sup had child undefined started with essdb:start_link("127.0.0.1", 8888, 1) at undefined exit with reason {connection_error,{connection_error,econnrefused}} in context start_error
+2015-12-04 05:55:34.595 [error] <0.97.0> CRASH REPORT Process <0.97.0> with 0 neighbours exited with reason: {{{shutdown,{failed_to_start_child,{essdb_client,<0.110.0>,1},{connection_error,{connection_error,econnrefused}}}},{child,undefined,essdb_sup,{db_sup,start_link,[]},permanent,brutal_kill,supervisor,[essdb_sup]}},{game,start,[normal,[]]}} in application_master:init/4 line 134
+2015-12-04 05:55:34.596 [info] <0.7.0> Application game exited with reason: {{{shutdown,{failed_to_start_child,{essdb_client,<0.110.0>,1},{connection_error,{connection_error,econnrefused}}}},{child,undefined,essdb_sup,{db_sup,start_link,[]},permanent,brutal_kill,supervisor,[essdb_sup]}},{game,start,[normal,[]]}}
+2015-12-04 05:56:48.633 [info] <0.7.0> Application lager started on node cat@localhost
+2015-12-04 05:56:48.652 [info] <0.7.0> Application sasl started on node cat@localhost
+2015-12-04 05:56:48.665 [info] <0.7.0> Application ranch started on node cat@localhost
+2015-12-04 05:56:48.681 [info] <0.7.0> Application crypto started on node cat@localhost
+2015-12-04 05:56:48.691 [info] <0.7.0> Application cowlib started on node cat@localhost
+2015-12-04 05:56:48.704 [info] <0.7.0> Application cowboy started on node cat@localhost
+2015-12-04 05:56:48.718 [info] <0.98.0>@game_config:do_load_game_conf:67 FORMAT ERROR: [21152,36733,99,111,110,102,105,103,58,126,112] [[{gate_port,9001},{admin_port,8001},{server_id,0},{open_fcm,false},{db_host,"127.0.0.1"},{db_port,8888},{root_dir,"/mnt/hgfs/git_rep/cat"},{ebin_dir,"/mnt/hgfs/git_rep/cat/ebin"},{log_dir,"/data/logs/cat"},{config_dir,"/mnt/hgfs/git_rep/cat/config"},{data_dir,"/mnt/hgfs/git_rep/cat/data"},{run_log_dir,"/mnt/hgfs/git_rep/cat/log"},{gate_ip,"0.0.0.0"},{gate_conn_max,4000},{admin_ip,"0.0.0.0"},{admin_key,"fc0faf1cb1478a85d5ab7089ff3233d0"},{admin_allow_ip,["127.0.0.1","121.10.118.225","112.91.23.225"]},{db_game,{"localhost",3306,"root","root",8}},{db_admin,{"localhost",3306,"root","root",8}},{sql_statis,false},{gm_default,true},{guest,true},{login_auth,false},{{map_role_max,11000},80},{{map_role_max,40001},50},{map_role_max,30},{max_role_cache_size,500},{daily_load_type,db},{anti_cheat,1},{cheat_lock_time,60},{x_speed_max,250},{"dev",[]},{"4399",[{auth_key_timeout,30},{chat_monitor,false},{chat_monitor_ip,"mxqy.msg.we4399.com"},{chat_monitor_port,5864}]},{"yy",[{auth_key_timeout,30}]}]]
+2015-12-04 05:56:48.726 [error] <0.98.0>@game_sup:start_reloader:82 reloader start
+2015-12-04 06:14:20.515 [info] <0.7.0> Application lager started on node cat@localhost
+2015-12-04 06:14:20.533 [info] <0.7.0> Application sasl started on node cat@localhost
+2015-12-04 06:14:20.546 [info] <0.7.0> Application ranch started on node cat@localhost
+2015-12-04 06:14:20.563 [info] <0.7.0> Application crypto started on node cat@localhost
+2015-12-04 06:14:20.572 [info] <0.7.0> Application cowlib started on node cat@localhost
+2015-12-04 06:14:20.585 [info] <0.7.0> Application cowboy started on node cat@localhost
+2015-12-04 06:14:20.600 [info] <0.98.0>@game_config:do_load_game_conf:67 FORMAT ERROR: [21152,36733,99,111,110,102,105,103,58,126,112] [[{gate_port,9001},{admin_port,8001},{server_id,0},{open_fcm,false},{db_host,"127.0.0.1"},{db_port,8888},{root_dir,"/mnt/hgfs/git_rep/cat"},{ebin_dir,"/mnt/hgfs/git_rep/cat/ebin"},{log_dir,"/data/logs/cat"},{config_dir,"/mnt/hgfs/git_rep/cat/config"},{data_dir,"/mnt/hgfs/git_rep/cat/data"},{run_log_dir,"/mnt/hgfs/git_rep/cat/log"},{gate_ip,"0.0.0.0"},{gate_conn_max,4000},{admin_ip,"0.0.0.0"},{admin_key,"fc0faf1cb1478a85d5ab7089ff3233d0"},{admin_allow_ip,["127.0.0.1","121.10.118.225","112.91.23.225"]},{db_game,{"localhost",3306,"root","root",8}},{db_admin,{"localhost",3306,"root","root",8}},{sql_statis,false},{gm_default,true},{guest,true},{login_auth,false},{{map_role_max,11000},80},{{map_role_max,40001},50},{map_role_max,30},{max_role_cache_size,500},{daily_load_type,db},{anti_cheat,1},{cheat_lock_time,60},{x_speed_max,250},{"dev",[]},{"4399",[{auth_key_timeout,30},{chat_monitor,false},{chat_monitor_ip,"mxqy.msg.we4399.com"},{chat_monitor_port,5864}]},{"yy",[{auth_key_timeout,30}]}]]
+2015-12-04 06:14:20.608 [error] <0.98.0>@game_sup:start_reloader:82 reloader start
+2015-12-04 07:10:52.847 [warning] <0.6.0> lager_error_logger_h dropped 28 messages in the last second that exceeded the limit of 50 messages/sec
+2015-12-04 07:10:52.847 [error] <0.192.0> E(<0.192.0>:role_server:513) : unknow info request: {tcp,#Port<0.3183>,<<1,2,3>>}
+2015-12-04 07:11:24.550 [error] <0.191.0> E(<0.191.0>:role_server:513) : unknow info request: {tcp_closed,#Port<0.3166>}
+2015-12-04 07:22:08.747 [info] <0.7.0> Application lager started on node cat@localhost
+2015-12-04 07:22:08.770 [info] <0.7.0> Application sasl started on node cat@localhost
+2015-12-04 07:22:08.792 [info] <0.7.0> Application ranch started on node cat@localhost
+2015-12-04 07:22:08.814 [info] <0.7.0> Application crypto started on node cat@localhost
+2015-12-04 07:22:08.828 [info] <0.7.0> Application cowlib started on node cat@localhost
+2015-12-04 07:22:08.864 [info] <0.7.0> Application cowboy started on node cat@localhost
+2015-12-04 07:22:08.880 [info] <0.98.0>@game_config:do_load_game_conf:67 FORMAT ERROR: [21152,36733,99,111,110,102,105,103,58,126,112] [[{gate_port,9001},{admin_port,8001},{server_id,0},{open_fcm,false},{db_host,"127.0.0.1"},{db_port,8888},{root_dir,"/mnt/hgfs/git_rep/cat"},{ebin_dir,"/mnt/hgfs/git_rep/cat/ebin"},{log_dir,"/data/logs/cat"},{config_dir,"/mnt/hgfs/git_rep/cat/config"},{data_dir,"/mnt/hgfs/git_rep/cat/data"},{run_log_dir,"/mnt/hgfs/git_rep/cat/log"},{gate_ip,"0.0.0.0"},{gate_conn_max,4000},{admin_ip,"0.0.0.0"},{admin_key,"fc0faf1cb1478a85d5ab7089ff3233d0"},{admin_allow_ip,["127.0.0.1","121.10.118.225","112.91.23.225"]},{db_game,{"localhost",3306,"root","root",8}},{db_admin,{"localhost",3306,"root","root",8}},{sql_statis,false},{gm_default,true},{guest,true},{login_auth,false},{{map_role_max,11000},80},{{map_role_max,40001},50},{map_role_max,30},{max_role_cache_size,500},{daily_load_type,db},{anti_cheat,1},{cheat_lock_time,60},{x_speed_max,250},{"dev",[]},{"4399",[{auth_key_timeout,30},{chat_monitor,false},{chat_monitor_ip,"mxqy.msg.we4399.com"},{chat_monitor_port,5864}]},{"yy",[{auth_key_timeout,30}]}]]
+2015-12-04 07:22:08.892 [error] <0.98.0>@game_sup:start_reloader:82 reloader start
+2015-12-04 07:22:09.002 [warning] <0.6.0> lager_error_logger_h dropped 1 messages in the last second that exceeded the limit of 50 messages/sec
+2015-12-04 07:22:09.004 [warning] <0.165.0> Transport option binary unknown or invalid.
+2015-12-04 07:22:09.004 [warning] <0.165.0> Transport option {active,false} unknown or invalid.
+2015-12-04 07:22:09.004 [warning] <0.165.0> Transport option {reuseaddr,true} unknown or invalid.
+2015-12-04 07:22:09.045 [info] <0.7.0> Application game started on node cat@localhost
+2015-12-05 06:33:56.814 [info] <0.7.0> Application lager started on node cat@localhost
+2015-12-05 06:33:56.835 [info] <0.7.0> Application sasl started on node cat@localhost
+2015-12-05 06:33:56.850 [info] <0.7.0> Application ranch started on node cat@localhost
+2015-12-05 06:33:56.866 [info] <0.7.0> Application crypto started on node cat@localhost
+2015-12-05 06:33:56.875 [info] <0.7.0> Application cowlib started on node cat@localhost
+2015-12-05 06:33:56.890 [info] <0.7.0> Application cowboy started on node cat@localhost
+2015-12-05 06:33:56.922 [info] <0.98.0>@game_config:do_load_game_conf:67 FORMAT ERROR: [21152,36733,99,111,110,102,105,103,58,126,112] [[{gate_port,9001},{admin_port,8001},{server_id,0},{open_fcm,false},{db_host,"127.0.0.1"},{db_port,8888},{root_dir,"/mnt/hgfs/git_rep/cat"},{ebin_dir,"/mnt/hgfs/git_rep/cat/ebin"},{log_dir,"/data/logs/cat"},{config_dir,"/mnt/hgfs/git_rep/cat/config"},{data_dir,"/mnt/hgfs/git_rep/cat/data"},{run_log_dir,"/mnt/hgfs/git_rep/cat/log"},{gate_ip,"0.0.0.0"},{gate_conn_max,4000},{admin_ip,"0.0.0.0"},{admin_key,"fc0faf1cb1478a85d5ab7089ff3233d0"},{admin_allow_ip,["127.0.0.1","121.10.118.225","112.91.23.225"]},{db_game,{"localhost",3306,"root","root",8}},{db_admin,{"localhost",3306,"root","root",8}},{sql_statis,false},{gm_default,true},{guest,true},{login_auth,false},{{map_role_max,11000},80},{{map_role_max,40001},50},{map_role_max,30},{max_role_cache_size,500},{daily_load_type,db},{anti_cheat,1},{cheat_lock_time,60},{x_speed_max,250},{"dev",[]},{"4399",[{auth_key_timeout,30},{chat_monitor,false},{chat_monitor_ip,"mxqy.msg.we4399.com"},{chat_monitor_port,5864}]},{"yy",[{auth_key_timeout,30}]}]]
+2015-12-05 06:33:56.932 [error] <0.98.0>@game_sup:start_reloader:82 reloader start
+2015-12-05 06:33:57.031 [warning] <0.165.0> Transport option binary unknown or invalid.
+2015-12-05 06:33:57.031 [warning] <0.165.0> Transport option {active,false} unknown or invalid.
+2015-12-05 06:33:57.031 [warning] <0.165.0> Transport option {reuseaddr,true} unknown or invalid.
+2015-12-05 06:36:42.295 [error] <0.42.0>@game:debug:63 FORMAT ERROR: [36825,26159,19968,20010,38169,35823,58,32,126,112,32] [pass]
+2015-12-05 06:38:18.754 [error] <0.42.0>@game:debug:63 这是一个错误:
+2015-12-05 18:21:30.915 [info] <0.7.0> Application lager started on node cat@localhost
+2015-12-05 18:21:30.937 [info] <0.7.0> Application sasl started on node cat@localhost
+2015-12-05 18:21:30.951 [info] <0.7.0> Application ranch started on node cat@localhost
+2015-12-05 18:21:30.999 [info] <0.7.0> Application crypto started on node cat@localhost
+2015-12-05 18:21:31.009 [info] <0.7.0> Application cowlib started on node cat@localhost
+2015-12-05 18:21:31.024 [info] <0.7.0> Application cowboy started on node cat@localhost
+2015-12-05 18:21:31.039 [info] <0.98.0>@game_config:do_load_game_conf:67 FORMAT ERROR: [21152,36733,99,111,110,102,105,103,58,126,112] [[{gate_port,9001},{admin_port,8001},{server_id,0},{open_fcm,false},{db_host,"127.0.0.1"},{db_port,8888},{root_dir,"/mnt/hgfs/git_rep/cat"},{ebin_dir,"/mnt/hgfs/git_rep/cat/ebin"},{log_dir,"/data/logs/cat"},{config_dir,"/mnt/hgfs/git_rep/cat/config"},{data_dir,"/mnt/hgfs/git_rep/cat/data"},{run_log_dir,"/mnt/hgfs/git_rep/cat/log"},{gate_ip,"0.0.0.0"},{gate_conn_max,4000},{admin_ip,"0.0.0.0"},{admin_key,"fc0faf1cb1478a85d5ab7089ff3233d0"},{admin_allow_ip,["127.0.0.1","121.10.118.225","112.91.23.225"]},{db_game,{"localhost",3306,"root","root",8}},{db_admin,{"localhost",3306,"root","root",8}},{sql_statis,false},{gm_default,true},{guest,true},{login_auth,false},{{map_role_max,11000},80},{{map_role_max,40001},50},{map_role_max,30},{max_role_cache_size,500},{daily_load_type,db},{anti_cheat,1},{cheat_lock_time,60},{x_speed_max,250},{"dev",[]},{"4399",[{auth_key_timeout,30},{chat_monitor,false},{chat_monitor_ip,"mxqy.msg.we4399.com"},{chat_monitor_port,5864}]},{"yy",[{auth_key_timeout,30}]}]]
+2015-12-05 18:21:31.049 [error] <0.98.0>@game_sup:start_reloader:82 reloader start
+2015-12-05 18:21:31.151 [warning] <0.165.0> Transport option binary unknown or invalid.
+2015-12-05 18:21:31.151 [warning] <0.165.0> Transport option {active,false} unknown or invalid.
+2015-12-05 18:21:31.151 [warning] <0.165.0> Transport option {reuseaddr,true} unknown or invalid.
+2015-12-07 07:00:39.718 [info] <0.7.0> Application lager started on node cat@localhost
+2015-12-07 07:00:39.740 [info] <0.7.0> Application sasl started on node cat@localhost
+2015-12-07 07:00:39.754 [info] <0.7.0> Application ranch started on node cat@localhost
+2015-12-07 07:00:39.770 [info] <0.7.0> Application crypto started on node cat@localhost
+2015-12-07 07:00:39.779 [info] <0.7.0> Application cowlib started on node cat@localhost
+2015-12-07 07:00:39.794 [info] <0.7.0> Application cowboy started on node cat@localhost
+2015-12-07 07:00:39.809 [info] <0.98.0>@game_config:do_load_game_conf:67 FORMAT ERROR: [21152,36733,99,111,110,102,105,103,58,126,112] [[{gate_port,9001},{admin_port,8001},{server_id,0},{open_fcm,false},{db_host,"127.0.0.1"},{db_port,8888},{root_dir,"/mnt/hgfs/git_rep/cat"},{ebin_dir,"/mnt/hgfs/git_rep/cat/ebin"},{log_dir,"/data/logs/cat"},{config_dir,"/mnt/hgfs/git_rep/cat/config"},{data_dir,"/mnt/hgfs/git_rep/cat/data"},{run_log_dir,"/mnt/hgfs/git_rep/cat/log"},{gate_ip,"0.0.0.0"},{gate_conn_max,4000},{admin_ip,"0.0.0.0"},{admin_key,"fc0faf1cb1478a85d5ab7089ff3233d0"},{admin_allow_ip,["127.0.0.1","121.10.118.225","112.91.23.225"]},{db_game,{"localhost",3306,"root","root",8}},{db_admin,{"localhost",3306,"root","root",8}},{sql_statis,false},{gm_default,true},{guest,true},{login_auth,false},{{map_role_max,11000},80},{{map_role_max,40001},50},{map_role_max,30},{max_role_cache_size,500},{daily_load_type,db},{anti_cheat,1},{cheat_lock_time,60},{x_speed_max,250},{"dev",[]},{"4399",[{auth_key_timeout,30},{chat_monitor,false},{chat_monitor_ip,"mxqy.msg.we4399.com"},{chat_monitor_port,5864}]},{"yy",[{auth_key_timeout,30}]}]]
+2015-12-07 07:00:39.818 [error] <0.98.0>@game_sup:start_reloader:84 reloader start

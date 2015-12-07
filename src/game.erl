@@ -60,8 +60,7 @@ stop(_State) ->
 	ok.
 
 debug() ->
-    lager:error(?_U("这是一个错误: ~p "), [pass]).
-
+    lager:error("这是一个错误:").
 
 %%----------------------
 %% Internal API

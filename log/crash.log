@@ -367,4 +367,29 @@ Ranch listener role_sup connection process start failure; role_server:start_link
     reductions: 96
   neighbours:
 2015-11-28 23:07:51 =ERROR REPORT====
-FORMAT ERROR: [69,40,126,112,58,126,112,58,126,112,41,32,58,32,21551,21160,28216,25103,26381,21153,22120,20986,38169,58,126,112,58,126,112,10,115,116,97,99,101,116,114,97,99,101,58,126,112,126,110] [<0.2.0>,game,26,error,{badmatch,{error,{bad_return,{{game,start,[normal,[]]},{'EXIT',{badarg,[{game_sup,start_reloader,1,[{file,"src/game_sup.erl"},{line,84}]},{game_sup,start_link,1,[{file,"src/game_sup.erl"},{line,34}]},{game,start,2,[{file,"src/game.erl"},{line,46}]},{application_master,start_supervisor,3,[{file,"application_master.erl"},{line,327}]},{application_master,start_the_app,5,[{file,"application_master.erl"},{line,309}]},{application_master,start_it_new,7,[{file,"application_master.erl"},{line,295}]}]}}}}}},[{game,start,0,[{file,"src/game.erl"},{line,23}]},{init,start_it,1,[]},{init,start_em,1,[]}]]
+FORMAT ERROR: [69,40,126,112,58,126,112,58,126,112,41,32,58,32,21551,21160,28216,25103,26381,21153,22120,20986,38169,58,126,112,58,126,112,10,115,116,97,99,101,116,114,97,99,101,58,126,112,126,110] [<0.2.0>,game,26,error,{badmatch,{error,{bad_return,{{game,start,[normal,[]]},{'EXIT',{badarg,[{game_sup,start_reloader,1,[{file,"src/game_sup.erl"},{line,84}]},{game_sup,start_link,1,[{file,"src/game_sup.erl"},{line,34}]},{game,start,2,[{file,"src/game.erl"},{line,46}]},{application_master,start_supervisor,3,[{file,"application_master.erl"},{line,327}]},{application_master,start_the_app,5,[{file,"application_master.erl"},{line,309}]},{application_master,start_it_new,7,[{file,"application_master.erl"},{line,295}]}]}}}}}},[{game,start,0,[{file,"src/game.erl"},{line,23}]},{init,start_it,1,[]},{init,start_em,1,[]}]]2015-12-04 05:55:34 =CRASH REPORT====
+  crasher:
+    initial call: essdb_client:init/1
+    pid: <0.111.0>
+    registered_name: []
+    exception exit: {{connection_error,{connection_error,econnrefused}},[{gen_server,init_it,6,[{file,"gen_server.erl"},{line,344}]},{proc_lib,init_p_do_apply,3,[{file,"proc_lib.erl"},{line,239}]}]}
+    ancestors: [db_sup,game_sup,<0.98.0>]
+    messages: []
+    links: [<0.110.0>]
+    dictionary: []
+    trap_exit: false
+    status: running
+    heap_size: 10958
+    stack_size: 27
+    reductions: 571
+  neighbours:
+2015-12-04 05:55:34 =SUPERVISOR REPORT====
+     Supervisor: {local,db_sup}
+     Context:    start_error
+     Reason:     {connection_error,{connection_error,econnrefused}}
+     Offender:   [{pid,undefined},{id,{essdb_client,<0.110.0>,1}},{mfargs,{essdb,start_link,["127.0.0.1",8888,1]}},{restart_type,permanent},{shutdown,brutal_kill},{child_type,worker}]
+
+2015-12-04 07:10:52 =ERROR REPORT====
+E(<0.192.0>:role_server:513) : unknow info request: {tcp,#Port<0.3183>,<<1,2,3>>}
+2015-12-04 07:11:24 =ERROR REPORT====
+E(<0.191.0>:role_server:513) : unknow info request: {tcp_closed,#Port<0.3166>}

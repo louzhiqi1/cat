@@ -98,6 +98,9 @@
         timeout = 0,            % socket超时次数
         login_state,            % 连接登录状态,参考LOGIN_STATE_XXX
         connect_lost = false,   % 连接是否中断
+        delay_stop_timer = none,% 延迟关进程的timer_ref
+        recv_data = <<>>,       % 有可能有粘包的情况
+        transport = ranch_tcp,  % ranch用的协议
         reg_time = 0,
         last_login_time,
         last_login_ip,

@@ -42,12 +42,10 @@ init_role(Role) ->
 
 %% @doc 玩家模块结束
 terminate_role(_Role) ->
-    ?DEBUG(?_U(" 玩家模块结束 保存数据库 ~n")),
     ok.
 
 %% 清除daily
 clear_daily(_Role) ->
-	?DEBUG(?_U(" 清除daily数据 ~n")),
 	ok.
 
 %% @doc 处理timeout
@@ -55,7 +53,6 @@ handle_timeout(check_heart_timeout, Role) ->
     anti_cheat:check_heart_timeout(Role),
     {ok, Role};
 handle_timeout(_Event, Role) ->
-    ?DEBUG(?_U("收到超时事件:~p"), [_Event]),
     {ok, Role}.
 
 %% @doc 处理c2s请求
@@ -65,19 +62,16 @@ handle_c2s(?P_HEART_ROLE, _, Role) ->
     {ok, Role};
 
 %% 其他未知协议
-handle_c2s(Fi, _, Role) ->  
-    ?WARN(?_U("未知的c2s请求:~p"), [Fi]),
+handle_c2s(_Fi, _, Role) ->  
     {ok, Role}.
 
 
 %% @doc 处理服务器内服的cast
 handle_s2s_cast(_Req, Role) ->
-    ?DEBUG(?_U("收到s2s_cast请求：~p"),[_Req]),
     {ok, Role}.
 
 %% @doc 处理服务器内部的call
 handle_s2s_call(_Req, Role) ->
-    ?DEBUG(?_U("收到s2s_call请求:~p"), [_Req]),
     {ok, Role}.
 
 

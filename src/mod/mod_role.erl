@@ -26,6 +26,8 @@
 
 -export([admin_ban_acc/2, admin_enable_acc/1, admin_enable_ip/1, admin_ban_ip/2]).
 
+-export([on_payment/4]).
+
 %% @doc 帐号封禁
 %% Time 封禁时长,单位为秒
 admin_ban_acc(Id, Time) when is_integer(Id) ->
@@ -76,7 +78,6 @@ admin_payment(Id, OrderId, PayGold) when is_integer(PayGold), PayGold > 0 ->
     catch
         _Type:_Reason ->
             % 2
-            ?ERROR2(?_U("玩家:~p充值失败!gold:~p ~p:~p"), [Id, PayGold, _Type, _Reason]),
             {error, ?E_PAYMENT}
     end.
 
@@ -118,14 +119,12 @@ terminate_role(#role{id = Id} = Role) ->
 
 %% 清除daily
 clear_daily(_Role) ->
-	?DEBUG(?_U(" 清除daily数据 ~n")),
+	
 	ok.
 
 %% 创建角色
 handle_c2s(?P_ROLE_CREATE, [Name, Ip], 
         #role{id = 0, accname = AccName} = Role) ->
-    ?DEBUG(?_U("创建角色accname:~w"),
-        [AccName]),
     case catch do_create(AccName, Ip, Name) of
         {ok, Id} ->
             game_log:register(Id, Ip),
@@ -134,7 +133,7 @@ handle_c2s(?P_ROLE_CREATE, [Name, Ip],
             role_server:s2s_cast(self(), mod_login, {login_after_create}),
             {ok, Role#role{id = Id, reg_time = util:now_sec()}};
         {error, Code} ->
-            ?WARN(?_U("创建角色错误:~p"), [Code]),
+            lager:error("create role error:~p", [Code]),
             Msg = [Code],
             {respon, Msg, Role}
     end;
@@ -143,11 +142,9 @@ handle_c2s(?P_ROLE_CREATE  ,  [ _Name, _Vocation]  , _Role ) ->
     {?E_ROLE_RECREATE} ;
 
 handle_c2s(_Fi, _Data, Role) ->  
-    ?WARN(?_U("未知的协议请求:~p data:~p"), [_Fi, _Data]),
     {ok, Role}.
 
 handle_timeout(_Event, Role) ->
-    ?DEBUG(?_U("收到超时事件:~p"), [_Event]),
     {ok, Role}.
 
 %%-----------------------------
@@ -155,20 +152,15 @@ handle_timeout(_Event, Role) ->
 %%-----------------------------
 
 %% 充值(后台使用)
-handle_s2s_call({admin_payment, Gold}, #role{gold = Gold, total_payment = Old} = Role) ->
-    ?DEBUG(?_U("玩家~p, 充值：~p"), [Role#role.id, Gold]),
-    GoldSum = Old + Gold,
-    Role2 = role_internal:inc_gold(Role, Gold),
-    game_log:gold(Role2, Gold, ?LOG_EARN_GOLD_TYPE_PAYMENT),
-    {ok, ok, Role2};
+handle_s2s_call({admin_payment, Gold}, Role) ->    
+        Role2 = role_internal:inc_gold(Role, Gold),
+        game_log:gold(Role2, Gold, ?LOG_EARN_GOLD_TYPE_PAYMENT),
+        {ok, ok, Role2};
 handle_s2s_call(_Req, Role) ->
-    ?DEBUG(?_U("收到s2s_call请求:~p"), [_Req]),
-    {ok, Role}.
-
+        {ok, Role}.
 
 handle_s2s_cast(_Req, Role) ->
-    ?DEBUG(?_U("未知的s2s_cast请求:~p"), [_Req]),
-    {ok, Role}.
+        {ok, Role}.
 
 
 %%------------------
@@ -180,7 +172,7 @@ on_payment(Role, PayGold, OldVip, OldTotalPayment) ->
     try do_on_payment(Role, PayGold, OldVip, OldTotalPayment)
     catch
         _T:_R ->
-            ?ERROR(?_U("玩家~p充值后发生错误 ~p:~p"), [Role#role.id, _T, _R]),
+            lager:error("player ~p onpayment error ~p:~p", [Role#role.id, _T, _R]),
             ok
     end.
 do_on_payment(Role, _PayGold, _OldVip, OldTotalPayment) ->
@@ -201,6 +193,5 @@ do_create(AccName, Ip, Name) ->
 
     % 4
     Id = serv_id:role(),
-    ?DEBUG(?_U("创建玩家:~p对应id:~p"), [AccName, Id]),
 
     db_role:create(Id, AccName, Ip, Name).         

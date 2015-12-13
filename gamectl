@@ -405,9 +405,8 @@ case ${ACTION} in
     'status') status;;
     'attach') attach;;
     'trace') trace;;
-    'stop') stop_server false;;
-    'sync_stop') stop_server true;;
-    'restart') restart true;;
+    'stop') stop_server;;
+    'restart') restart;;
     'reload') reload $@;;
     *) usage; exit 1;;
 esac

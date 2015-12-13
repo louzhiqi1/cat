@@ -86,13 +86,12 @@ init() ->
 
 process(["status"]) ->
     do_status([?MAIN_APP]);
-process(["stop", Sync | _]) ->
+process(["stop"]) ->
     erlang:group_leader(erlang:whereis(user), self()),
     try
-        game:stop_server(?S2EA(Sync))
+        game:stop_server()
     catch
         Class:Reason ->
-            ?PRINT("stop game server error ~w:~w", [Class, Reason]),
             lager:error("********* stop ~p:~p", [Class, Reason]),
             ?STATUS_ERROR
     end;

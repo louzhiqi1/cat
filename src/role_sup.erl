@@ -8,26 +8,34 @@
 -module(role_sup).
 -include("common.hrl").
 
--behaviour(supervisor).
-
--export([start_link/0, start_link/1]).
--export([init/1]).
+-export([start/0]).
 
 -define(SERVER, ?MODULE).
 
-start_link() ->	
-    start_link([]) .
+-define(TCP_OPTS,
+        [
+                binary, 
+                {active, false}, 
+                {reuseaddr, true}, 
+                {delay_send, true}, 
+                {nodelay, true}, 
+                {send_timeout, 8000},
+                {max_connections, ?CONFIG(gate_conn_max)},
+                {packet_size, 2}
+        ]).
 
-start_link(_Args) ->
-	?DEBUG("client sup start" , []) ,
-	supervisor:start_link({local , ?MODULE}, ?MODULE, []) .
 
-init([]) ->
-    Child = {	role_server ,
-				{ role_server ,start_link,[]},
-	      		temporary,
-				200000,
-				worker,
-				[ role_server ]
-			 } , 
-    {ok, {{simple_one_for_one , 10 , 10 }, [Child]}}.
+start() ->
+        case ranch:start_listener(role_sup, 10, ranch_tcp, 
+                [{port, ?CONFIG(gate_port)} | ?TCP_OPTS], role_server, []) of
+                {error, Reason} ->
+                        lager:error("start role_sup error, Reason = ~p", [Reason]),
+                        halt();
+                {ok, Pid} ->
+                        erlang:register(role_sup, Pid)
+        end.
+
+
+
+
+

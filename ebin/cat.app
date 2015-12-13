@@ -21,7 +21,7 @@
                         gen_mod,glc,glc_code,glc_lib,glc_ops,gm_command,
                         gr_app,gr_context,gr_counter,gr_counter_sup,
                         gr_manager,gr_manager_sup,gr_param,gr_param_sup,
-                        gr_sup,gre,hash_set,lager,lager_app,
+                        gr_sup,gre,hash_set,http_server_app,lager,lager_app,
                         lager_backend_throttle,lager_common_test_backend,
                         lager_config,lager_console_backend,lager_crash_log,
                         lager_default_formatter,lager_file_backend,

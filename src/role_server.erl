@@ -228,11 +228,11 @@ terminate(normal, ?ROLE_LOGIN_POLICY) ->
 terminate(normal, #role{login_state = ?ROLE_LOGIN_WAITING}) ->
     ok;
 terminate(_Reason, #role{login_state = ?ROLE_LOGIN_WAITING}) ->
-    ?ERROR("role terminate when login_state is ?ROLE_LOGIN_WAITING:~p", [_Reason]),
+    lager:error("role terminate when login_state is ?ROLE_LOGIN_WAITING:~p", [_Reason]),
     ok;
 terminate(_Reason, #role{sock = Sock, id = Id} = Role) ->
         TerminateR = util:get_terminate_reason(),
-        ?IF(_Reason =:= normal, ok, ?ERROR("role ~p terminate:~w and :~w" , [Id, _Reason, TerminateR])),
+        ?IF(_Reason =:= normal, ok, lager:error("role ~p terminate:~w and :~w" , [Id, _Reason, TerminateR])),
         try 
                 serv_role_mgr:delete(Id),
                 ?IF(erlang:is_port(Sock), close_socket(Sock), ok),
@@ -362,8 +362,8 @@ do_call( _Request, _From, State ) ->
 -else.
 -define(WAIT_ACTIVE_TIMEOUT, 5000).
 -endif.
-do_cast(active_for_relogin, State = #role{transport = Transport, delay_stop_timer = TimerRef}) ->
-        Transport:setopts([{active, once}, {packet_size, ?HEADER_LENGTH}]),
+do_cast(active_for_relogin, State = #role{sock = Sock, transport = Transport, delay_stop_timer = TimerRef}) ->
+        Transport:setopts(Sock, [{active, once}, {packet_size, ?HEADER_LENGTH}]),
 
         erlang:cancel_timer(TimerRef),
     
@@ -432,21 +432,44 @@ do_cast(Msg, State) ->
 %%------------------
 %% 处理handle_info
 %%------------------
-do_info({tcp, Socket, Data}, State = #role{sock = Socket, length = 0, transport = Transport}) ->
+do_info({tcp, Sock, <<0:8, 1:8>> = Data}, ?ROLE_LOGIN_POLICY) ->
+        lager:error("1"),
         <<Length:16>> = Data,
-        Transport:setopts([{active, once}, {packet_size, Length}]),
+        lager:error("Length = ~p", [Length]),
+        State = #role{   
+                sock = Sock,  
+                pid = self(),        
+                length = 0,    
+                timeout = 0,         
+                login_state = ?ROLE_LOGIN_WAITING,
+                transport = ranch_tcp,
+                last_login_time = util:local_time(),
+                gold = 0,
+                total_payment = 0       % 总充值
+        },
+        ranch_tcp:setopts(Sock, [{active, once}, {packet_size, 2}]),
+        {noreply, State};
 
-        {noreply, State#role{length = 0}};
+do_info({tcp, Socket, Data}, State = #role{sock = Socket, length = 0, transport = Transport}) ->
+        lager:error("2"),
+        <<Length:16>> = Data,
+        lager:error("Length = ~p", [Length]),
+        Transport:setopts(Socket, [{active, once}, {packet_size, Length}]),
 
-do_info({tcp, _Sock, Data}, State = #role{transport = Transport}) ->
+        {noreply, State#role{length = Length}};
+
+do_info({tcp, Sock, Data}, State = #role{transport = Transport}) ->
+        lager:error("3"),
+        lager:error("error = ~p", [Data]),
         <<Mi:8, Fi:8, Bin/binary>> = Data,
+        lager:debug("Mi = ~p, Fi = ~p, Bin = ~p",[Mi, Fi, Bin]),
         case handle_c2s(Mi, Fi, Bin, State) of
                 {ok, State2} ->
-                        Transport:setopts([{active, once}, {packet_size, ?HEADER_LENGTH}]),
+                        Transport:setopts(Sock, [{active, once}, {packet_size, ?HEADER_LENGTH}]),
 
                         {reply, ok, State2};
                 {ok, Reply, State2} ->
-                        Transport:setopts([{active, once}, {packet_size, ?HEADER_LENGTH}]),
+                        Transport:setopts(Sock, [{active, once}, {packet_size, ?HEADER_LENGTH}]),
 
                         {reply, Reply, State2};
                 {stop, State2} ->
@@ -460,19 +483,19 @@ do_info({tcp_closed, Socket}, State = #role{sock = Socket}) ->
 
         {noreply, State#role{connect_lost = true, delay_stop_timer = Ref}};
 
-do_info({tcp_error, _, timeout}, State = #role{timeout = Timeout, transport = Transport}) ->
-    lager:debug("==============> tcp error, timeout"),
-
-    case Timeout >= 5 of
-        true ->
-            util:set_terminate_reason(?LOG_LOGOUT_TYPE_TCP_TIMEOUT),
-
-            {stop, normal, State};
-        false ->
-            Transport:setopts([{active, once}]),
-
-            {noreply, State#role{timeout = Timeout+1}}
-    end;
+do_info({tcp_error, _, timeout}, State = #role{sock = Sock, timeout = Timeout, transport = Transport}) ->
+        lager:debug("==============> tcp error, timeout"),
+        
+        case Timeout >= 5 of
+                true ->
+                        util:set_terminate_reason(?LOG_LOGOUT_TYPE_TCP_TIMEOUT),
+        
+                        {stop, normal, State};
+                false ->
+                        Transport:setopts(Sock, [{active, once}]),
+        
+                        {noreply, State#role{timeout = Timeout+1}}
+        end;
 
 do_info({tcp_error, _, Reason}, State) ->
         util:set_terminate_reason(?LOG_LOGOUT_TYPE_TCP_ERROR),
@@ -486,11 +509,9 @@ do_info(stop, State) ->
         {stop, normal, State};
 
 do_info(Info , State ) ->
-        lager:error("unknow info request: ~p", [Info]) ,
+        lager:error("role_server unknown info request: ~p, State = ~p", [Info, State]) ,
 
         {noreply, State}.
-
-
 
 delay_stop() ->
         erlang:send_after(10000, self(), stop).

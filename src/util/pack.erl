@@ -73,12 +73,12 @@ pack(Data) when is_tuple(Data) ->
     pack(tuple_to_list(Data));
 %% 错误
 pack(Data) ->
-	?ERROR("error data type ~p", [Data]),
-    exit(nonsupport_type).
+	lager:error("error data type ~p", [Data]),
+        exit(nonsupport_type).
 	
 %% @doc 解码
 unpack(<<>>) ->
-    {<<>>, <<>>};
+        {<<>>, <<>>};
 unpack(<<?PACK_TYPE_TRUE:8, Bin/binary >> ) ->
 	{true, Bin};
 unpack(<<?PACK_TYPE_FALSE:8, Bin/binary >> ) ->
@@ -121,7 +121,7 @@ unpack(<<?PACK_TYPE_LBIN:8, Len:32, Str:Len/binary, Rest/binary >>) ->
 
 %% 错误类型
 unpack(<<Type:8 , _/binary>> = Bin) ->
-	?ERROR("error bin data type:~p bin:~p", [Type, Bin]),
+	lager:error("error bin data type:~p bin:~p", [Type, Bin]),
 	{error , bad_type, Type} .
 
 %% 解码列表

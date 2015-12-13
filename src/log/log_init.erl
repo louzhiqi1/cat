@@ -14,7 +14,6 @@
 
 %% @doc 初始化日志相关
 start(Sup) ->
-    ?INFO(?_U("启动逻辑log server"), []),
     ok = start_logic_log_server(Sup),
     ok.
 

@@ -12,7 +12,7 @@
               {registered,[lager_sup,lager_event,lager_crash_log,
                            lager_handler_watcher_sup]},
               {mod,{lager_app,[]}},
-              {env,[{colored,false},
+              {env,[{colored,true},
                     {colors,[{debug,"\e[0;38m"},
                              {info,"\e[1;37m"},
                              {notice,"\e[1;36m"},

@@ -9,10 +9,9 @@
 -module(game).
 -behaviour(application).
 
--export([start/0, stop_server/1]).
+-export([start/0, stop_server/0]).
 -export([start/2, stop/1]).
-
--export([debug/0]).
+-export([set_loglevel/1]).
 
 -include("wg_log.hrl").
 -include("common.hrl").
@@ -20,27 +19,22 @@
 %% @doc 启动游戏
 start() ->
     try
-		set_loglevel(),
         ensure_apps(),
+        set_loglevel(debug),
         ok = application:start(game)
     catch
         Type:Error ->
-            lager:error("启动游戏服务器出错:~p:~p", [Type, Error]),
+            lager:error("application start error:~p:~p", [Type, Error]),
             init:stop(?STATUS_ERROR)
     end.
 
 
 %% @doc 停止游戏服务器
 %% 同步停止,立刻停止
-stop_server(true) ->
-    do_stop_server(),
+stop_server() ->
+    application:stop(?MAIN_APP),
     init:stop(),
     ?STATUS_SUCCESS.
-
-%% 停止游戏
-do_stop_server() ->
-	application:stop(?MAIN_APP),
-	init:stop().
 
 %% @doc 启动游戏
 start(_Type , StartArgs) ->
@@ -55,12 +49,10 @@ stop(_State) ->
         log_init:stop()
     catch
         _T:_R ->
-            lager:error("停止app保存数据出错 ~p:~p", [_T, _R])
+            lager:error("application stop error ~p:~p", [_T, _R])
     end,
 	ok.
 
-debug() ->
-    lager:error("这是一个错误:").
 
 %%----------------------
 %% Internal API
@@ -72,14 +64,10 @@ ensure_apps() ->
     ok = application:start(ranch),
     ok = application:start(crypto),
     ok = application:start(cowlib),
-    ok = application:start(cowboy).
+    ok = application:start(cowboy),
+    ok = application:start(http_server).
 
 %% 设置日志等级
-set_loglevel() ->
-	L = game:module_info(compile),
-	Opts = ?KV_GET(options, L),	
-	Macros = [M || {K, M} <- Opts, K =:= 'd'],	
-	?IF(lists:member('TEST', Macros),
-		wg_loglevel:set(5), 
-		wg_loglevel:set(3)).
+set_loglevel(Level) ->
+	lager:set_loglevel(console, Level).
 

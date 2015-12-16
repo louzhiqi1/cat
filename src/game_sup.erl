@@ -38,9 +38,6 @@ start_link( _Args ) ->
     
         ok = util:start_child(Sup, {essdb_sup, {db_sup, start_link, []},
                                     permanent, brutal_kill, supervisor, [essdb_sup]}),
-    
-        % ok = util:start_child(Sup, {role_sup, {ranch, start_listener, [role_sup, 10, ranch_tcp, [{port, ?CONFIG(gate_port)} |?TCP_OPTS], role_server, []]},
-        %                             permanent, brutal_kill, supervisor, [role_sup]}),
 
         
         {ok, Sup}.

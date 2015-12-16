@@ -1,0 +1,882 @@
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:22 ===
+          supervisor: {local,sasl_safe_sup}
+             started: [{pid,<0.81.0>},
+                       {id,alarm_handler},
+                       {mfargs,{alarm_handler,start_link,[]}},
+                       {restart_type,permanent},
+                       {shutdown,2000},
+                       {child_type,worker}]
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:22 ===
+          supervisor: {local,sasl_safe_sup}
+             started: [{pid,<0.82.0>},
+                       {id,overload},
+                       {mfargs,{overload,start_link,[]}},
+                       {restart_type,permanent},
+                       {shutdown,2000},
+                       {child_type,worker}]
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:22 ===
+          supervisor: {local,sasl_sup}
+             started: [{pid,<0.80.0>},
+                       {id,sasl_safe_sup},
+                       {mfargs,
+                           {supervisor,start_link,
+                               [{local,sasl_safe_sup},sasl,safe]}},
+                       {restart_type,permanent},
+                       {shutdown,infinity},
+                       {child_type,supervisor}]
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:22 ===
+          supervisor: {local,sasl_sup}
+             started: [{pid,<0.83.0>},
+                       {id,release_handler},
+                       {mfargs,{release_handler,start_link,[]}},
+                       {restart_type,permanent},
+                       {shutdown,2000},
+                       {child_type,worker}]
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:22 ===
+         application: sasl
+          started_at: cat@localhost
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:22 ===
+          supervisor: {local,ranch_sup}
+             started: [{pid,<0.89.0>},
+                       {id,ranch_server},
+                       {mfargs,{ranch_server,start_link,[]}},
+                       {restart_type,permanent},
+                       {shutdown,5000},
+                       {child_type,worker}]
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:22 ===
+         application: ranch
+          started_at: cat@localhost
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:22 ===
+         application: crypto
+          started_at: cat@localhost
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:23 ===
+         application: cowlib
+          started_at: cat@localhost
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:23 ===
+          supervisor: {local,cowboy_sup}
+             started: [{pid,<0.96.0>},
+                       {id,cowboy_clock},
+                       {mfargs,{cowboy_clock,start_link,[]}},
+                       {restart_type,permanent},
+                       {shutdown,5000},
+                       {child_type,worker}]
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:23 ===
+         application: cowboy
+          started_at: cat@localhost
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:23 ===
+          supervisor: {local,game_sup}
+             started: [{pid,<0.104.0>},
+                       {id,reloader},
+                       {mfargs,{wg_reloader,start_link,[0]}},
+                       {restart_type,permanent},
+                       {shutdown,brutal_kill},
+                       {child_type,worker}]
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:23 ===
+          supervisor: {local,game_sup}
+             started: [{pid,<0.108.0>},
+                       {id,wg_cron_server},
+                       {mfargs,
+                           {wg_cron_server,start_link,
+                               ["/mnt/hgfs/git_rep/cat/config/game.crontab"]}},
+                       {restart_type,permanent},
+                       {shutdown,brutal_kill},
+                       {child_type,worker}]
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:23 ===
+          supervisor: {local,game_sup}
+             started: [{pid,<0.110.0>},
+                       {id,serv_timer_engine},
+                       {mfargs,{serv_timer_engine,start_link,[]}},
+                       {restart_type,permanent},
+                       {shutdown,brutal_kill},
+                       {child_type,worker}]
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:23 ===
+          supervisor: {local,inet_gethost_native_sup}
+             started: [{pid,<0.114.0>},{mfa,{inet_gethost_native,init,[[]]}}]
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:23 ===
+          supervisor: {local,kernel_safe_sup}
+             started: [{pid,<0.113.0>},
+                       {id,inet_gethost_native_sup},
+                       {mfargs,{inet_gethost_native,start_link,[]}},
+                       {restart_type,temporary},
+                       {shutdown,1000},
+                       {child_type,worker}]
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:23 ===
+          supervisor: {local,db_sup}
+             started: [{pid,<0.112.0>},
+                       {id,{essdb_client,<0.111.0>,1}},
+                       {mfargs,{essdb,start_link,["127.0.0.1",8888,1]}},
+                       {restart_type,permanent},
+                       {shutdown,brutal_kill},
+                       {child_type,worker}]
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:23 ===
+          supervisor: {local,db_sup}
+             started: [{pid,<0.115.0>},
+                       {id,{essdb_client,<0.111.0>,2}},
+                       {mfargs,{essdb,start_link,["127.0.0.1",8888,2]}},
+                       {restart_type,permanent},
+                       {shutdown,brutal_kill},
+                       {child_type,worker}]
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:23 ===
+          supervisor: {local,db_sup}
+             started: [{pid,<0.116.0>},
+                       {id,{essdb_client,<0.111.0>,3}},
+                       {mfargs,{essdb,start_link,["127.0.0.1",8888,3]}},
+                       {restart_type,permanent},
+                       {shutdown,brutal_kill},
+                       {child_type,worker}]
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:23 ===
+          supervisor: {local,db_sup}
+             started: [{pid,<0.117.0>},
+                       {id,{essdb_client,<0.111.0>,4}},
+                       {mfargs,{essdb,start_link,["127.0.0.1",8888,4]}},
+                       {restart_type,permanent},
+                       {shutdown,brutal_kill},
+                       {child_type,worker}]
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:23 ===
+          supervisor: {local,db_sup}
+             started: [{pid,<0.118.0>},
+                       {id,{essdb_client,<0.111.0>,5}},
+                       {mfargs,{essdb,start_link,["127.0.0.1",8888,5]}},
+                       {restart_type,permanent},
+                       {shutdown,brutal_kill},
+                       {child_type,worker}]
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:23 ===
+          supervisor: {local,db_sup}
+             started: [{pid,<0.119.0>},
+                       {id,{essdb_client,<0.111.0>,6}},
+                       {mfargs,{essdb,start_link,["127.0.0.1",8888,6]}},
+                       {restart_type,permanent},
+                       {shutdown,brutal_kill},
+                       {child_type,worker}]
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:23 ===
+          supervisor: {local,db_sup}
+             started: [{pid,<0.120.0>},
+                       {id,{essdb_client,<0.111.0>,7}},
+                       {mfargs,{essdb,start_link,["127.0.0.1",8888,7]}},
+                       {restart_type,permanent},
+                       {shutdown,brutal_kill},
+                       {child_type,worker}]
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:23 ===
+          supervisor: {local,db_sup}
+             started: [{pid,<0.121.0>},
+                       {id,{essdb_client,<0.111.0>,8}},
+                       {mfargs,{essdb,start_link,["127.0.0.1",8888,8]}},
+                       {restart_type,permanent},
+                       {shutdown,brutal_kill},
+                       {child_type,worker}]
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:23 ===
+          supervisor: {local,db_sup}
+             started: [{pid,<0.122.0>},
+                       {id,{essdb_client,<0.111.0>,9}},
+                       {mfargs,{essdb,start_link,["127.0.0.1",8888,9]}},
+                       {restart_type,permanent},
+                       {shutdown,brutal_kill},
+                       {child_type,worker}]
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:23 ===
+          supervisor: {local,db_sup}
+             started: [{pid,<0.123.0>},
+                       {id,{essdb_client,<0.111.0>,10}},
+                       {mfargs,{essdb,start_link,["127.0.0.1",8888,10]}},
+                       {restart_type,permanent},
+                       {shutdown,brutal_kill},
+                       {child_type,worker}]
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:23 ===
+          supervisor: {local,db_sup}
+             started: [{pid,<0.124.0>},
+                       {id,{essdb_client,<0.111.0>,11}},
+                       {mfargs,{essdb,start_link,["127.0.0.1",8888,11]}},
+                       {restart_type,permanent},
+                       {shutdown,brutal_kill},
+                       {child_type,worker}]
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:23 ===
+          supervisor: {local,db_sup}
+             started: [{pid,<0.125.0>},
+                       {id,{essdb_client,<0.111.0>,12}},
+                       {mfargs,{essdb,start_link,["127.0.0.1",8888,12]}},
+                       {restart_type,permanent},
+                       {shutdown,brutal_kill},
+                       {child_type,worker}]
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:23 ===
+          supervisor: {local,db_sup}
+             started: [{pid,<0.126.0>},
+                       {id,{essdb_client,<0.111.0>,13}},
+                       {mfargs,{essdb,start_link,["127.0.0.1",8888,13]}},
+                       {restart_type,permanent},
+                       {shutdown,brutal_kill},
+                       {child_type,worker}]
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:23 ===
+          supervisor: {local,db_sup}
+             started: [{pid,<0.127.0>},
+                       {id,{essdb_client,<0.111.0>,14}},
+                       {mfargs,{essdb,start_link,["127.0.0.1",8888,14]}},
+                       {restart_type,permanent},
+                       {shutdown,brutal_kill},
+                       {child_type,worker}]
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:23 ===
+          supervisor: {local,db_sup}
+             started: [{pid,<0.128.0>},
+                       {id,{essdb_client,<0.111.0>,15}},
+                       {mfargs,{essdb,start_link,["127.0.0.1",8888,15]}},
+                       {restart_type,permanent},
+                       {shutdown,brutal_kill},
+                       {child_type,worker}]
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:23 ===
+          supervisor: {local,db_sup}
+             started: [{pid,<0.129.0>},
+                       {id,{essdb_client,<0.111.0>,16}},
+                       {mfargs,{essdb,start_link,["127.0.0.1",8888,16]}},
+                       {restart_type,permanent},
+                       {shutdown,brutal_kill},
+                       {child_type,worker}]
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:23 ===
+          supervisor: {local,db_sup}
+             started: [{pid,<0.130.0>},
+                       {id,{essdb_client,<0.111.0>,17}},
+                       {mfargs,{essdb,start_link,["127.0.0.1",8888,17]}},
+                       {restart_type,permanent},
+                       {shutdown,brutal_kill},
+                       {child_type,worker}]
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:23 ===
+          supervisor: {local,db_sup}
+             started: [{pid,<0.131.0>},
+                       {id,{essdb_client,<0.111.0>,18}},
+                       {mfargs,{essdb,start_link,["127.0.0.1",8888,18]}},
+                       {restart_type,permanent},
+                       {shutdown,brutal_kill},
+                       {child_type,worker}]
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:23 ===
+          supervisor: {local,db_sup}
+             started: [{pid,<0.132.0>},
+                       {id,{essdb_client,<0.111.0>,19}},
+                       {mfargs,{essdb,start_link,["127.0.0.1",8888,19]}},
+                       {restart_type,permanent},
+                       {shutdown,brutal_kill},
+                       {child_type,worker}]
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:23 ===
+          supervisor: {local,db_sup}
+             started: [{pid,<0.133.0>},
+                       {id,{essdb_client,<0.111.0>,20}},
+                       {mfargs,{essdb,start_link,["127.0.0.1",8888,20]}},
+                       {restart_type,permanent},
+                       {shutdown,brutal_kill},
+                       {child_type,worker}]
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:23 ===
+          supervisor: {local,db_sup}
+             started: [{pid,<0.134.0>},
+                       {id,{essdb_client,<0.111.0>,21}},
+                       {mfargs,{essdb,start_link,["127.0.0.1",8888,21]}},
+                       {restart_type,permanent},
+                       {shutdown,brutal_kill},
+                       {child_type,worker}]
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:23 ===
+          supervisor: {local,db_sup}
+             started: [{pid,<0.135.0>},
+                       {id,{essdb_client,<0.111.0>,22}},
+                       {mfargs,{essdb,start_link,["127.0.0.1",8888,22]}},
+                       {restart_type,permanent},
+                       {shutdown,brutal_kill},
+                       {child_type,worker}]
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:23 ===
+          supervisor: {local,db_sup}
+             started: [{pid,<0.136.0>},
+                       {id,{essdb_client,<0.111.0>,23}},
+                       {mfargs,{essdb,start_link,["127.0.0.1",8888,23]}},
+                       {restart_type,permanent},
+                       {shutdown,brutal_kill},
+                       {child_type,worker}]
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:23 ===
+          supervisor: {local,db_sup}
+             started: [{pid,<0.137.0>},
+                       {id,{essdb_client,<0.111.0>,24}},
+                       {mfargs,{essdb,start_link,["127.0.0.1",8888,24]}},
+                       {restart_type,permanent},
+                       {shutdown,brutal_kill},
+                       {child_type,worker}]
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:23 ===
+          supervisor: {local,db_sup}
+             started: [{pid,<0.138.0>},
+                       {id,{essdb_client,<0.111.0>,25}},
+                       {mfargs,{essdb,start_link,["127.0.0.1",8888,25]}},
+                       {restart_type,permanent},
+                       {shutdown,brutal_kill},
+                       {child_type,worker}]
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:23 ===
+          supervisor: {local,db_sup}
+             started: [{pid,<0.139.0>},
+                       {id,{essdb_client,<0.111.0>,26}},
+                       {mfargs,{essdb,start_link,["127.0.0.1",8888,26]}},
+                       {restart_type,permanent},
+                       {shutdown,brutal_kill},
+                       {child_type,worker}]
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:23 ===
+          supervisor: {local,db_sup}
+             started: [{pid,<0.140.0>},
+                       {id,{essdb_client,<0.111.0>,27}},
+                       {mfargs,{essdb,start_link,["127.0.0.1",8888,27]}},
+                       {restart_type,permanent},
+                       {shutdown,brutal_kill},
+                       {child_type,worker}]
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:23 ===
+          supervisor: {local,db_sup}
+             started: [{pid,<0.141.0>},
+                       {id,{essdb_client,<0.111.0>,28}},
+                       {mfargs,{essdb,start_link,["127.0.0.1",8888,28]}},
+                       {restart_type,permanent},
+                       {shutdown,brutal_kill},
+                       {child_type,worker}]
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:23 ===
+          supervisor: {local,db_sup}
+             started: [{pid,<0.142.0>},
+                       {id,{essdb_client,<0.111.0>,29}},
+                       {mfargs,{essdb,start_link,["127.0.0.1",8888,29]}},
+                       {restart_type,permanent},
+                       {shutdown,brutal_kill},
+                       {child_type,worker}]
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:23 ===
+          supervisor: {local,db_sup}
+             started: [{pid,<0.143.0>},
+                       {id,{essdb_client,<0.111.0>,30}},
+                       {mfargs,{essdb,start_link,["127.0.0.1",8888,30]}},
+                       {restart_type,permanent},
+                       {shutdown,brutal_kill},
+                       {child_type,worker}]
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:23 ===
+          supervisor: {local,db_sup}
+             started: [{pid,<0.144.0>},
+                       {id,{essdb_client,<0.111.0>,31}},
+                       {mfargs,{essdb,start_link,["127.0.0.1",8888,31]}},
+                       {restart_type,permanent},
+                       {shutdown,brutal_kill},
+                       {child_type,worker}]
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:23 ===
+          supervisor: {local,db_sup}
+             started: [{pid,<0.145.0>},
+                       {id,{essdb_client,<0.111.0>,32}},
+                       {mfargs,{essdb,start_link,["127.0.0.1",8888,32]}},
+                       {restart_type,permanent},
+                       {shutdown,brutal_kill},
+                       {child_type,worker}]
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:23 ===
+          supervisor: {local,db_sup}
+             started: [{pid,<0.146.0>},
+                       {id,{essdb_client,<0.111.0>,33}},
+                       {mfargs,{essdb,start_link,["127.0.0.1",8888,33]}},
+                       {restart_type,permanent},
+                       {shutdown,brutal_kill},
+                       {child_type,worker}]
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:23 ===
+          supervisor: {local,db_sup}
+             started: [{pid,<0.147.0>},
+                       {id,{essdb_client,<0.111.0>,34}},
+                       {mfargs,{essdb,start_link,["127.0.0.1",8888,34]}},
+                       {restart_type,permanent},
+                       {shutdown,brutal_kill},
+                       {child_type,worker}]
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:23 ===
+          supervisor: {local,db_sup}
+             started: [{pid,<0.148.0>},
+                       {id,{essdb_client,<0.111.0>,35}},
+                       {mfargs,{essdb,start_link,["127.0.0.1",8888,35]}},
+                       {restart_type,permanent},
+                       {shutdown,brutal_kill},
+                       {child_type,worker}]
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:23 ===
+          supervisor: {local,db_sup}
+             started: [{pid,<0.149.0>},
+                       {id,{essdb_client,<0.111.0>,36}},
+                       {mfargs,{essdb,start_link,["127.0.0.1",8888,36]}},
+                       {restart_type,permanent},
+                       {shutdown,brutal_kill},
+                       {child_type,worker}]
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:23 ===
+          supervisor: {local,db_sup}
+             started: [{pid,<0.150.0>},
+                       {id,{essdb_client,<0.111.0>,37}},
+                       {mfargs,{essdb,start_link,["127.0.0.1",8888,37]}},
+                       {restart_type,permanent},
+                       {shutdown,brutal_kill},
+                       {child_type,worker}]
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:23 ===
+          supervisor: {local,db_sup}
+             started: [{pid,<0.151.0>},
+                       {id,{essdb_client,<0.111.0>,38}},
+                       {mfargs,{essdb,start_link,["127.0.0.1",8888,38]}},
+                       {restart_type,permanent},
+                       {shutdown,brutal_kill},
+                       {child_type,worker}]
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:23 ===
+          supervisor: {local,db_sup}
+             started: [{pid,<0.152.0>},
+                       {id,{essdb_client,<0.111.0>,39}},
+                       {mfargs,{essdb,start_link,["127.0.0.1",8888,39]}},
+                       {restart_type,permanent},
+                       {shutdown,brutal_kill},
+                       {child_type,worker}]
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:23 ===
+          supervisor: {local,db_sup}
+             started: [{pid,<0.153.0>},
+                       {id,{essdb_client,<0.111.0>,40}},
+                       {mfargs,{essdb,start_link,["127.0.0.1",8888,40]}},
+                       {restart_type,permanent},
+                       {shutdown,brutal_kill},
+                       {child_type,worker}]
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:23 ===
+          supervisor: {local,db_sup}
+             started: [{pid,<0.154.0>},
+                       {id,{essdb_client,<0.111.0>,41}},
+                       {mfargs,{essdb,start_link,["127.0.0.1",8888,41]}},
+                       {restart_type,permanent},
+                       {shutdown,brutal_kill},
+                       {child_type,worker}]
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:23 ===
+          supervisor: {local,db_sup}
+             started: [{pid,<0.155.0>},
+                       {id,{essdb_client,<0.111.0>,42}},
+                       {mfargs,{essdb,start_link,["127.0.0.1",8888,42]}},
+                       {restart_type,permanent},
+                       {shutdown,brutal_kill},
+                       {child_type,worker}]
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:23 ===
+          supervisor: {local,db_sup}
+             started: [{pid,<0.156.0>},
+                       {id,{essdb_client,<0.111.0>,43}},
+                       {mfargs,{essdb,start_link,["127.0.0.1",8888,43]}},
+                       {restart_type,permanent},
+                       {shutdown,brutal_kill},
+                       {child_type,worker}]
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:23 ===
+          supervisor: {local,db_sup}
+             started: [{pid,<0.157.0>},
+                       {id,{essdb_client,<0.111.0>,44}},
+                       {mfargs,{essdb,start_link,["127.0.0.1",8888,44]}},
+                       {restart_type,permanent},
+                       {shutdown,brutal_kill},
+                       {child_type,worker}]
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:23 ===
+          supervisor: {local,db_sup}
+             started: [{pid,<0.158.0>},
+                       {id,{essdb_client,<0.111.0>,45}},
+                       {mfargs,{essdb,start_link,["127.0.0.1",8888,45]}},
+                       {restart_type,permanent},
+                       {shutdown,brutal_kill},
+                       {child_type,worker}]
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:23 ===
+          supervisor: {local,db_sup}
+             started: [{pid,<0.159.0>},
+                       {id,{essdb_client,<0.111.0>,46}},
+                       {mfargs,{essdb,start_link,["127.0.0.1",8888,46]}},
+                       {restart_type,permanent},
+                       {shutdown,brutal_kill},
+                       {child_type,worker}]
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:23 ===
+          supervisor: {local,db_sup}
+             started: [{pid,<0.160.0>},
+                       {id,{essdb_client,<0.111.0>,47}},
+                       {mfargs,{essdb,start_link,["127.0.0.1",8888,47]}},
+                       {restart_type,permanent},
+                       {shutdown,brutal_kill},
+                       {child_type,worker}]
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:23 ===
+          supervisor: {local,db_sup}
+             started: [{pid,<0.161.0>},
+                       {id,{essdb_client,<0.111.0>,48}},
+                       {mfargs,{essdb,start_link,["127.0.0.1",8888,48]}},
+                       {restart_type,permanent},
+                       {shutdown,brutal_kill},
+                       {child_type,worker}]
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:23 ===
+          supervisor: {local,db_sup}
+             started: [{pid,<0.162.0>},
+                       {id,{essdb_client,<0.111.0>,49}},
+                       {mfargs,{essdb,start_link,["127.0.0.1",8888,49]}},
+                       {restart_type,permanent},
+                       {shutdown,brutal_kill},
+                       {child_type,worker}]
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:23 ===
+          supervisor: {local,db_sup}
+             started: [{pid,<0.163.0>},
+                       {id,{essdb_client,<0.111.0>,50}},
+                       {mfargs,{essdb,start_link,["127.0.0.1",8888,50]}},
+                       {restart_type,permanent},
+                       {shutdown,brutal_kill},
+                       {child_type,worker}]
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:23 ===
+          supervisor: {local,game_sup}
+             started: [{pid,<0.111.0>},
+                       {id,essdb_sup},
+                       {mfargs,{db_sup,start_link,[]}},
+                       {restart_type,permanent},
+                       {shutdown,brutal_kill},
+                       {child_type,supervisor}]
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:23 ===
+          supervisor: {<0.164.0>,ranch_listener_sup}
+             started: [{pid,<0.165.0>},
+                       {id,ranch_conns_sup},
+                       {mfargs,
+                           {ranch_conns_sup,start_link,
+                               [role_sup,worker,5000,ranch_tcp,5000,
+                                role_server]}},
+                       {restart_type,permanent},
+                       {shutdown,infinity},
+                       {child_type,supervisor}]
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:23 ===
+          supervisor: {<0.166.0>,ranch_acceptors_sup}
+             started: [{pid,<0.167.0>},
+                       {id,{acceptor,<0.166.0>,1}},
+                       {mfargs,
+                           {ranch_acceptor,start_link,
+                               [#Port<0.3043>,ranch_tcp,<0.165.0>]}},
+                       {restart_type,permanent},
+                       {shutdown,brutal_kill},
+                       {child_type,worker}]
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:23 ===
+          supervisor: {<0.166.0>,ranch_acceptors_sup}
+             started: [{pid,<0.168.0>},
+                       {id,{acceptor,<0.166.0>,2}},
+                       {mfargs,
+                           {ranch_acceptor,start_link,
+                               [#Port<0.3043>,ranch_tcp,<0.165.0>]}},
+                       {restart_type,permanent},
+                       {shutdown,brutal_kill},
+                       {child_type,worker}]
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:23 ===
+          supervisor: {<0.166.0>,ranch_acceptors_sup}
+             started: [{pid,<0.169.0>},
+                       {id,{acceptor,<0.166.0>,3}},
+                       {mfargs,
+                           {ranch_acceptor,start_link,
+                               [#Port<0.3043>,ranch_tcp,<0.165.0>]}},
+                       {restart_type,permanent},
+                       {shutdown,brutal_kill},
+                       {child_type,worker}]
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:23 ===
+          supervisor: {<0.166.0>,ranch_acceptors_sup}
+             started: [{pid,<0.170.0>},
+                       {id,{acceptor,<0.166.0>,4}},
+                       {mfargs,
+                           {ranch_acceptor,start_link,
+                               [#Port<0.3043>,ranch_tcp,<0.165.0>]}},
+                       {restart_type,permanent},
+                       {shutdown,brutal_kill},
+                       {child_type,worker}]
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:23 ===
+          supervisor: {<0.166.0>,ranch_acceptors_sup}
+             started: [{pid,<0.171.0>},
+                       {id,{acceptor,<0.166.0>,5}},
+                       {mfargs,
+                           {ranch_acceptor,start_link,
+                               [#Port<0.3043>,ranch_tcp,<0.165.0>]}},
+                       {restart_type,permanent},
+                       {shutdown,brutal_kill},
+                       {child_type,worker}]
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:23 ===
+          supervisor: {<0.166.0>,ranch_acceptors_sup}
+             started: [{pid,<0.172.0>},
+                       {id,{acceptor,<0.166.0>,6}},
+                       {mfargs,
+                           {ranch_acceptor,start_link,
+                               [#Port<0.3043>,ranch_tcp,<0.165.0>]}},
+                       {restart_type,permanent},
+                       {shutdown,brutal_kill},
+                       {child_type,worker}]
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:23 ===
+          supervisor: {<0.166.0>,ranch_acceptors_sup}
+             started: [{pid,<0.173.0>},
+                       {id,{acceptor,<0.166.0>,7}},
+                       {mfargs,
+                           {ranch_acceptor,start_link,
+                               [#Port<0.3043>,ranch_tcp,<0.165.0>]}},
+                       {restart_type,permanent},
+                       {shutdown,brutal_kill},
+                       {child_type,worker}]
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:23 ===
+          supervisor: {<0.166.0>,ranch_acceptors_sup}
+             started: [{pid,<0.174.0>},
+                       {id,{acceptor,<0.166.0>,8}},
+                       {mfargs,
+                           {ranch_acceptor,start_link,
+                               [#Port<0.3043>,ranch_tcp,<0.165.0>]}},
+                       {restart_type,permanent},
+                       {shutdown,brutal_kill},
+                       {child_type,worker}]
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:23 ===
+          supervisor: {<0.166.0>,ranch_acceptors_sup}
+             started: [{pid,<0.175.0>},
+                       {id,{acceptor,<0.166.0>,9}},
+                       {mfargs,
+                           {ranch_acceptor,start_link,
+                               [#Port<0.3043>,ranch_tcp,<0.165.0>]}},
+                       {restart_type,permanent},
+                       {shutdown,brutal_kill},
+                       {child_type,worker}]
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:23 ===
+          supervisor: {<0.166.0>,ranch_acceptors_sup}
+             started: [{pid,<0.176.0>},
+                       {id,{acceptor,<0.166.0>,10}},
+                       {mfargs,
+                           {ranch_acceptor,start_link,
+                               [#Port<0.3043>,ranch_tcp,<0.165.0>]}},
+                       {restart_type,permanent},
+                       {shutdown,brutal_kill},
+                       {child_type,worker}]
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:23 ===
+          supervisor: {<0.164.0>,ranch_listener_sup}
+             started: [{pid,<0.166.0>},
+                       {id,ranch_acceptors_sup},
+                       {mfargs,
+                           {ranch_acceptors_sup,start_link,
+                               [role_sup,10,ranch_tcp,
+                                [{port,9001},
+                                 binary,
+                                 {active,false},
+                                 {reuseaddr,true},
+                                 {delay_send,true},
+                                 {nodelay,true},
+                                 {send_timeout,8000},
+                                 {max_connections,4000},
+                                 {packet_size,2}]]}},
+                       {restart_type,permanent},
+                       {shutdown,infinity},
+                       {child_type,supervisor}]
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:23 ===
+          supervisor: {local,ranch_sup}
+             started: [{pid,<0.164.0>},
+                       {id,{ranch_listener_sup,role_sup}},
+                       {mfargs,
+                           {ranch_listener_sup,start_link,
+                               [role_sup,10,ranch_tcp,
+                                [{port,9001},
+                                 binary,
+                                 {active,false},
+                                 {reuseaddr,true},
+                                 {delay_send,true},
+                                 {nodelay,true},
+                                 {send_timeout,8000},
+                                 {max_connections,4000},
+                                 {packet_size,2}],
+                                role_server,[]]}},
+                       {restart_type,permanent},
+                       {shutdown,infinity},
+                       {child_type,supervisor}]
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:23 ===
+          supervisor: {local,game_sup}
+             started: [{pid,<0.164.0>},
+                       {id,role_sup},
+                       {mfargs,{ranch,start_listener,
+                                      [role_sup,10,ranch_tcp,
+                                       [{port,9001},
+                                        binary,
+                                        {active,false},
+                                        {reuseaddr,true},
+                                        {delay_send,true},
+                                        {nodelay,true},
+                                        {send_timeout,8000},
+                                        {max_connections,4000},
+                                        {packet_size,2}],
+                                       role_server,[]]}},
+                       {restart_type,permanent},
+                       {shutdown,brutal_kill},
+                       {child_type,supervisor}]
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:23 ===
+          supervisor: {<0.177.0>,ranch_listener_sup}
+             started: [{pid,<0.178.0>},
+                       {id,ranch_conns_sup},
+                       {mfargs,
+                           {ranch_conns_sup,start_link,
+                               [http_server,worker,5000,ranch_tcp,5000,
+                                cowboy_protocol]}},
+                       {restart_type,permanent},
+                       {shutdown,infinity},
+                       {child_type,supervisor}]
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:23 ===
+          supervisor: {<0.179.0>,ranch_acceptors_sup}
+             started: [{pid,<0.180.0>},
+                       {id,{acceptor,<0.179.0>,1}},
+                       {mfargs,
+                           {ranch_acceptor,start_link,
+                               [#Port<0.3053>,ranch_tcp,<0.178.0>]}},
+                       {restart_type,permanent},
+                       {shutdown,brutal_kill},
+                       {child_type,worker}]
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:23 ===
+          supervisor: {<0.179.0>,ranch_acceptors_sup}
+             started: [{pid,<0.181.0>},
+                       {id,{acceptor,<0.179.0>,2}},
+                       {mfargs,
+                           {ranch_acceptor,start_link,
+                               [#Port<0.3053>,ranch_tcp,<0.178.0>]}},
+                       {restart_type,permanent},
+                       {shutdown,brutal_kill},
+                       {child_type,worker}]
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:23 ===
+          supervisor: {<0.179.0>,ranch_acceptors_sup}
+             started: [{pid,<0.182.0>},
+                       {id,{acceptor,<0.179.0>,3}},
+                       {mfargs,
+                           {ranch_acceptor,start_link,
+                               [#Port<0.3053>,ranch_tcp,<0.178.0>]}},
+                       {restart_type,permanent},
+                       {shutdown,brutal_kill},
+                       {child_type,worker}]
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:23 ===
+          supervisor: {<0.179.0>,ranch_acceptors_sup}
+             started: [{pid,<0.183.0>},
+                       {id,{acceptor,<0.179.0>,4}},
+                       {mfargs,
+                           {ranch_acceptor,start_link,
+                               [#Port<0.3053>,ranch_tcp,<0.178.0>]}},
+                       {restart_type,permanent},
+                       {shutdown,brutal_kill},
+                       {child_type,worker}]
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:23 ===
+          supervisor: {<0.179.0>,ranch_acceptors_sup}
+             started: [{pid,<0.184.0>},
+                       {id,{acceptor,<0.179.0>,5}},
+                       {mfargs,
+                           {ranch_acceptor,start_link,
+                               [#Port<0.3053>,ranch_tcp,<0.178.0>]}},
+                       {restart_type,permanent},
+                       {shutdown,brutal_kill},
+                       {child_type,worker}]
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:23 ===
+          supervisor: {<0.179.0>,ranch_acceptors_sup}
+             started: [{pid,<0.185.0>},
+                       {id,{acceptor,<0.179.0>,6}},
+                       {mfargs,
+                           {ranch_acceptor,start_link,
+                               [#Port<0.3053>,ranch_tcp,<0.178.0>]}},
+                       {restart_type,permanent},
+                       {shutdown,brutal_kill},
+                       {child_type,worker}]
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:23 ===
+          supervisor: {<0.179.0>,ranch_acceptors_sup}
+             started: [{pid,<0.186.0>},
+                       {id,{acceptor,<0.179.0>,7}},
+                       {mfargs,
+                           {ranch_acceptor,start_link,
+                               [#Port<0.3053>,ranch_tcp,<0.178.0>]}},
+                       {restart_type,permanent},
+                       {shutdown,brutal_kill},
+                       {child_type,worker}]
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:23 ===
+          supervisor: {<0.179.0>,ranch_acceptors_sup}
+             started: [{pid,<0.187.0>},
+                       {id,{acceptor,<0.179.0>,8}},
+                       {mfargs,
+                           {ranch_acceptor,start_link,
+                               [#Port<0.3053>,ranch_tcp,<0.178.0>]}},
+                       {restart_type,permanent},
+                       {shutdown,brutal_kill},
+                       {child_type,worker}]
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:23 ===
+          supervisor: {<0.179.0>,ranch_acceptors_sup}
+             started: [{pid,<0.188.0>},
+                       {id,{acceptor,<0.179.0>,9}},
+                       {mfargs,
+                           {ranch_acceptor,start_link,
+                               [#Port<0.3053>,ranch_tcp,<0.178.0>]}},
+                       {restart_type,permanent},
+                       {shutdown,brutal_kill},
+                       {child_type,worker}]
+
+=PROGRESS REPORT==== 11-Dec-2015::23:53:23 ===
+          supervisor: {<0.179.0>,ranch_acceptors_sup}
+             started: [{pid,<0.189.0>},
+                       {id,{acceptor,<0.179.0>,10}},
+                       {mfargs,
+                           {ranch_acceptor,start_link,
+                               [#Port<0.3053>,ranch_tcp,<0.178.0>]}},
+                       {restart_type,permanent},
+                       {shutdown,brutal_kill},
+                       {child_type,worker}]

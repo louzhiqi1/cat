@@ -8,11 +8,12 @@
 -define( INIT_SLOT_NUM,				32 ) .
 
 %% 取key的hash值
--define( HASH_VALUE( Key ) ,		( 1 + erlang:phash2( Key , ?INIT_SLOT_NUM ) ) ) .
+-define( HASH_VALUE( Key ) , (1 + erlang:phash2( Key , ?INIT_SLOT_NUM))) .
 
--record( hash_set,		{	key_pos		= 1 ,		%% key的位置（默认第一个位置）
-							segs		= erlang:make_tuple( ?INIT_SLOT_NUM , [] )
-						} ) .
+-record(hash_set, {key_pos = 1,	%% key的位置（默认第一个位置）
+		    segs = erlang:make_tuple(?INIT_SLOT_NUM , [])
+		   } 
+	).
 
 
 
